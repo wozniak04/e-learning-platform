@@ -1,4 +1,4 @@
-import { Route, Routes, Link } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
 import LoginPage from "./login/login";
 import MainPage from "./mainPage/mainpage";
 import { AuthProvider } from "./auth/AuthContext";

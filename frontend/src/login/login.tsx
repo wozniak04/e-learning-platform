@@ -8,22 +8,24 @@ function LoginPage() {
   const auth = useAuth();
   const [email, setemail] = useState("");
   const [password, setpassword] = useState("");
+  const [errormessage, seterrormessage] = useState("");
   const navigate = useNavigate();
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log(email);
     console.log(password);
     if (login(email, password)) {
-      auth.login();
+      auth.login(email);
       navigate("/main");
     } else {
-      null;
+      seterrormessage("zły email lub hasło");
     }
   };
   return (
     <>
       <form className="window" onSubmit={handleSubmit}>
         <h1>Logowanie</h1>
+        <h3>{errormessage}</h3>
         <input
           name="email"
           type="email"

@@ -6,16 +6,16 @@ import { useAuth } from "../auth/AuthContext";
 
 function LoginPage() {
   const auth = useAuth();
-  const [email, setemail] = useState("");
+  const [login_input, setlogin] = useState("");
   const [password, setpassword] = useState("");
   const [errormessage, seterrormessage] = useState("");
   const navigate = useNavigate();
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(email);
+    console.log(login);
     console.log(password);
-    if (login(email, password)) {
-      auth.login(email);
+    if (login(login_input, password)) {
+      auth.login(login_input);
       navigate("/main");
     } else {
       seterrormessage("zły email lub hasło");
@@ -28,11 +28,11 @@ function LoginPage() {
         <h3>{errormessage}</h3>
         <input
           name="email"
-          type="email"
+          type="text"
           placeholder="wpisz email"
-          value={email}
+          value={login_input}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-            setemail(e.target.value)
+            setlogin(e.target.value)
           }
         />
         <input

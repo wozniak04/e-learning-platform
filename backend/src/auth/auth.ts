@@ -34,7 +34,7 @@ const loging = async (req: Request, res: Response) => {
       sameSite: "strict",
       maxAge: 1000 * 60 * 60, // 1 hour
     });
-    res.status(200).json({ message: "Login successful", user: result });
+    res.status(200).json({ message: "Login successful" });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Internal server error" });

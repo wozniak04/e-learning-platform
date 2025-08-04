@@ -29,7 +29,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           logout();
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.log(err);
         console.log("nie wazny token");
         logout();
       });

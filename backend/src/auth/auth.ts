@@ -4,11 +4,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-// Function to handle user login
-// It retrieves login and password from the request body, calls the login function from operations,
 const loging = async (req: Request, res: Response) => {
-  // and if successful, generates a JWT token and sets it as a cookie in the response.
-  // If the login fails, it returns a 401 status with an error message.
   try {
     const { login, password } = req.body;
     if (!login || !password) {
@@ -34,7 +30,10 @@ const loging = async (req: Request, res: Response) => {
       sameSite: "strict",
       maxAge: 1000 * 60 * 60, // 1 hour
     });
-    res.status(200).json({ message: "Login successful" });
+    res.status(200).json({
+      message: "Login successful",
+      username: result.login,
+    });
   } catch (error) {
     console.error("Login error:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -44,6 +43,13 @@ const register = async (req: Request, res: Response) => {
   const { email, login, password } = req.body;
   const result = await operations.register(email, login, password);
 };
-const logout = async (req: Request, res: Response) => {};
+const logout = async (req: Request, res: Response) => {
+  res.clearCookie("jwt", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  res.status(200).json({ message: "Logout successful" });
+};
 
 export default { loging, register, logout };

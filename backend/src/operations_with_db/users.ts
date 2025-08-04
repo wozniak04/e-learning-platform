@@ -6,7 +6,7 @@ dotenv.config();
 const login = async (login_from_front: string, password_from_front: string) => {
   try {
     const res = await pool.query("SELECT (login($1)).*;", [login_from_front]);
-    if (!res.rows.length) {
+    if (!res.rows.length || !res.rows[0].password_hash) {
       return null;
     }
     const isvalid = await bcrypt.compare(
@@ -27,6 +27,27 @@ const login = async (login_from_front: string, password_from_front: string) => {
 };
 
 const register = async (email: string, login: string, password: string) => {
+  if (!email || !login || !password) {
+    return {
+      succes: false,
+      message: "Email, login, and password are required",
+    };
+  }
+  const existingEmail = await pool.query(
+    "SELECT * FROM users WHERE email = $1;",
+    [email]
+  );
+  const existingLogin = await pool.query(
+    "SELECT * FROM users WHERE login = $1;",
+    [login]
+  );
+  if (existingEmail.rows.length > 0) {
+    return { succes: false, message: "Email already exists" };
+  }
+  if (existingLogin.rows.length > 0) {
+    return { succes: false, message: "Login already exists" };
+  }
+
   const hashed_password = await hashPassword(password);
   try {
     const res = await pool.query("SELECT add_user($1,$2,$3)", [
@@ -34,10 +55,13 @@ const register = async (email: string, login: string, password: string) => {
       hashed_password,
       login,
     ]);
-    return res.rows[0].add_user;
+    return { succes: true, result: res.rows[0].add_user };
   } catch (err) {
     console.error("Register error: ", err);
-    return null;
+    return {
+      succes: false,
+      message: "Registration failed due to an server error",
+    };
   }
 };
 
@@ -49,6 +73,4 @@ const hashPassword = async (password: string) => {
   return hashed_password;
 };
 
-//login("test2", "testhaslo").then((res) => console.log(res));
-//register("test2@wd.pl", "test2", "testhaslo").then((res) => console.log(res));
 export default { login, register };

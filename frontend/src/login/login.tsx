@@ -44,6 +44,9 @@ function LoginPage() {
         <a href="#">
           <p>Zapomniałem hasła</p>
         </a>
+        <a href="#" onClick={() => navigate("/register")}>
+          <p>założ konto</p>
+        </a>
       </form>
     </>
   );

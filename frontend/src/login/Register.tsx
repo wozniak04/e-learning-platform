@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./register.css";
+import authapi from "../Api/authapi";
 
 function RegisterPage() {
   const [login_input, setlogin] = useState("");
@@ -23,9 +24,22 @@ function RegisterPage() {
       setsuccess("");
       return;
     }
-    // TODO: Wywołaj API rejestracji
-    setsuccess("Rejestracja udana! Możesz się zalogować.");
-    seterrormessage("");
+    try {
+      const res = await authapi.register(login_input, email, password);
+      if (!res || res.status !== 201) {
+        console.log(res);
+        seterrormessage(res ? res.message : "Błąd rejestracji.");
+        setsuccess("");
+        return;
+      }
+      setsuccess("Rejestracja udana! Możesz się zalogować.");
+      seterrormessage("");
+      navigate("/login");
+    } catch (error) {
+      seterrormessage("Błąd rejestracji.");
+      setsuccess("");
+      console.error(error);
+    }
   };
 
   return (

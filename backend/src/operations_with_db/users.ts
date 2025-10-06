@@ -51,9 +51,9 @@ const register = async (email: string, login: string, password: string) => {
   const hashed_password = await hashPassword(password);
   try {
     const res = await pool.query("SELECT add_user($1,$2,$3)", [
-      email,
-      hashed_password,
       login,
+      hashed_password,
+      email,
     ]);
     return { succes: true, result: res.rows[0].add_user };
   } catch (err) {

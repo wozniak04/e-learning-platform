@@ -41,7 +41,21 @@ const loging = async (req: Request, res: Response) => {
 };
 const register = async (req: Request, res: Response) => {
   const { email, login, password } = req.body;
-  const result = await operations.register(email, login, password);
+  if (!email || !login || !password) {
+    return res
+      .status(400)
+      .json({ message: "Email, login, and password are required" });
+  }
+  try {
+    const result = await operations.register(email, login, password);
+    if (!result.succes) {
+      return res.status(400).json({ message: result.message });
+    }
+    return res.status(201).json({ message: "User registered successfully" });
+  } catch (error) {
+    console.error("Registration error:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
 };
 const logout = async (req: Request, res: Response) => {
   res.clearCookie("jwt", {
@@ -49,7 +63,7 @@ const logout = async (req: Request, res: Response) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
   });
-  res.status(200).json({ message: "Logout successful" });
+  res.status(200).json({ message: "Logout successful", succes: true });
 };
 
 export default { loging, register, logout };

@@ -11,8 +11,22 @@ async function login(email: string, password: string) {
 
     return response.data;
   } catch (error) {
+    console.error(error);
+    return false;
+  }
+}
+async function register(email: string, user_login: string, password: string) {
+  try {
+    const res = await axios.post(
+      `${BACKEND_URL}/register`,
+      { email, login: user_login, password },
+      { withCredentials: true }
+    );
+    return { status: res.status, message: res.data.message };
+  } catch (error) {
+    console.error(error);
     return false;
   }
 }
 
-export default { login };
+export default { login, register };

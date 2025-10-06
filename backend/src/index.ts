@@ -35,6 +35,12 @@ app.use(logger);
 app.use("/", router);
 const port = process.env.PORT ? Number(process.env.PORT) : 3000;
 const host = process.env.HOST || "0.0.0.0";
-app.listen(port, host, () => {
-  console.log(`starting server at url http://${host}:${port}`);
-});
+app
+  .listen(port, host, () => {
+    console.log(`starting server at url http://${host}:${port}`);
+  })
+  .on("error", (err) => {
+    console.error("Failed to start server:", err);
+  });
+
+export default app;

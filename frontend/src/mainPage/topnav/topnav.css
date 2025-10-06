@@ -1,0 +1,131 @@
+/* --- Podstawowe style strony --- */
+body,
+#root {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #f9fafb; /* jasne tło */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* --- Navbar --- */
+.topnav {
+  width: 100%;
+  background-color: #333; /* ciemny pasek navbar */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+  box-sizing: border-box;
+  height: 60px;
+}
+
+.topnav__logo {
+  background-color: aquamarine;
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  padding: 10px 20px;
+  border-radius: 12px;
+}
+
+.topnav__links {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 15px;
+}
+
+/* Navbarowe przyciski */
+.topnav__link {
+  padding: 8px 16px;
+  background-color: #10b981; /* zieleń pasująca do stylu okienka */
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  border: none;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.topnav__link:hover {
+  background-color: #059669; /* ciemniejsza zieleń na hover */
+}
+
+/* --- Kontener zębatki --- */
+.topnav__settings {
+  position: relative;
+  display: inline-block; /* popup będzie względem ikony */
+  z-index: 1000;
+}
+
+/* --- Popup menu --- */
+.topnav__popup {
+  position: absolute;
+  top: 100%; /* tuż pod przyciskiem */
+  right: 0;
+  background-color: #ffffff; /* jasne tło spójne z okienkiem */
+  border: 1px solid #e5e7eb; /* delikatny szary */
+  border-radius: 12px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  min-width: 150px;
+  max-width: 90vw;
+  z-index: 1000;
+  overflow: hidden;
+}
+
+/* Pojedyncza opcja w popup */
+.topnav__popup__item {
+  padding: 10px 16px;
+  border: none;
+  background: none;
+  text-align: left;
+  cursor: pointer;
+  font-size: 16px;
+  color: #111827; /* ciemny tekst */
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.topnav__popup__item:hover {
+  background-color: #f3f4f6; /* jasny hover jak inputy */
+  color: #10b981; /* zielony akcent spójny z przyciskami */
+}
+
+/* --- Responsywność --- */
+@media (max-width: 600px) {
+  .topnav {
+    flex-direction: column;
+    height: auto;
+    padding: 10px;
+  }
+
+  .topnav__links {
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .topnav__logo {
+    width: 100%;
+    text-align: center;
+  }
+
+  .topnav__link {
+    width: 100%;
+    text-align: center;
+  }
+}
+
+/* Popup przy małych ekranach przesuwa się w lewo */
+@media (max-width: 500px) {
+  .topnav__popup {
+    right: auto;
+    left: 0;
+  }
+}

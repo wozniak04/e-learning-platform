@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
+import "./mainpage.css";
+import TopNav from "./topnav/TopNav";
 function MainPage() {
   const auth = useAuth();
   const [username, setusername] = useState("");
@@ -11,8 +13,9 @@ function MainPage() {
   }, []);
   return (
     <>
-      <div>{username}</div>
-      <button onClick={wylogowanie}>wyloguj</button>
+      <div className="box">
+        <TopNav username={username} wylogowanie={wylogowanie} />
+      </div>
     </>
   );
 }

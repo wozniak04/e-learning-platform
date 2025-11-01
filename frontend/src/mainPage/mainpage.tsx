@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import "./mainpage.css";
 import TopNav from "./topnav/TopNav";
+import Courses from "./courses/Courses";
 function MainPage() {
   const auth = useAuth();
   const [username, setusername] = useState("");
@@ -15,6 +16,7 @@ function MainPage() {
     <>
       <div className="box">
         <TopNav username={username} wylogowanie={wylogowanie} />
+        <Courses />
       </div>
     </>
   );

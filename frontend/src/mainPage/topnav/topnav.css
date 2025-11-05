@@ -1,18 +1,16 @@
-/* --- Podstawowe style strony --- */
 body,
 #root {
   width: 100%;
   height: 100%;
   margin: 0;
   padding: 0;
-  background-color: #f9fafb; /* jasne tło */
+  background-color: #f9fafb;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-/* --- Navbar --- */
 .topnav {
   width: 100%;
-  background-color: #333; /* ciemny pasek navbar */
+  background-color: #333;
   display: flex;
   flex-direction: row;
   align-items: center;
@@ -38,10 +36,9 @@ body,
   gap: 15px;
 }
 
-/* Navbarowe przyciski */
 .topnav__link {
   padding: 8px 16px;
-  background-color: #10b981; /* zieleń pasująca do stylu okienka */
+  background-color: #10b981;
   color: white;
   font-size: 16px;
   font-weight: 500;
@@ -52,23 +49,21 @@ body,
 }
 
 .topnav__link:hover {
-  background-color: #059669; /* ciemniejsza zieleń na hover */
+  background-color: #059669;
 }
 
-/* --- Kontener zębatki --- */
 .topnav__settings {
   position: relative;
-  display: inline-block; /* popup będzie względem ikony */
+  display: inline-block;
   z-index: 1000;
 }
 
-/* --- Popup menu --- */
 .topnav__popup {
   position: absolute;
-  top: 100%; /* tuż pod przyciskiem */
+  top: 100%;
   right: 0;
-  background-color: #ffffff; /* jasne tło spójne z okienkiem */
-  border: 1px solid #e5e7eb; /* delikatny szary */
+  background-color: #ffffff;
+  border: 1px solid #e5e7eb;
   border-radius: 12px;
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
   display: flex;
@@ -79,7 +74,6 @@ body,
   overflow: hidden;
 }
 
-/* Pojedyncza opcja w popup */
 .topnav__popup__item {
   padding: 10px 16px;
   border: none;
@@ -87,16 +81,15 @@ body,
   text-align: left;
   cursor: pointer;
   font-size: 16px;
-  color: #111827; /* ciemny tekst */
+  color: #111827;
   transition: background-color 0.2s ease, color 0.2s ease;
 }
 
 .topnav__popup__item:hover {
-  background-color: #f3f4f6; /* jasny hover jak inputy */
-  color: #10b981; /* zielony akcent spójny z przyciskami */
+  background-color: #f3f4f6;
+  color: #10b981;
 }
 
-/* --- Responsywność --- */
 @media (max-width: 600px) {
   .topnav {
     flex-direction: column;
@@ -122,7 +115,6 @@ body,
   }
 }
 
-/* Popup przy małych ekranach przesuwa się w lewo */
 @media (max-width: 500px) {
   .topnav__popup {
     right: auto;

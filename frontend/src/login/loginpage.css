@@ -40,13 +40,13 @@ input {
 
 input:focus {
   outline: none;
-  border-color: #3b82f6; /* niebieski akcent */
+  border-color: #3b82f6;
 }
 
 button {
   width: 100%;
   padding: 12px 20px;
-  background-color: #10b981; /* zieleń - zachęcająca */
+  background-color: #10b981;
   color: white;
   font-size: 16px;
   font-weight: bold;

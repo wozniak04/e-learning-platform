@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "./styles/courses.css";
-import Course from "./Course";
+import Course from "./Course_Card";
 interface course_props {
   courses?: {
     name: string;

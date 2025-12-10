@@ -1,7 +1,19 @@
 import { Request, Response } from "express";
-import operations from "../operations_with_db/users";
+import operations from "../operations_with_db/auth";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
+import crypto from "crypto";
+import { blacklistToken } from "./jwtblacklist";
+import { EXPIRATION_SECONDS } from "../values";
+import {
+  getUserByLoginFromFront,
+  getUserByGoogleId,
+  addGoogleUser,
+  getUserByEmail,
+  linkGoogleIdToExistingUser,
+} from "../operations_with_db/users";
+import { link } from "fs";
+
 dotenv.config();
 
 const loging = async (req: Request, res: Response) => {
@@ -12,23 +24,28 @@ const loging = async (req: Request, res: Response) => {
         .status(400)
         .json({ message: "Login and password are required" });
     }
-    const result = await operations.login(login, password);
+    const result = await getUserByLoginFromFront(login);
     if (!result) {
       return res.status(401).json({ message: "Invalid login or password" });
     }
     const token_jwt = jwt.sign(
-      { sub: result.id, login: result.login, email: result.email },
+      {
+        sub: result.id,
+        login: result.login,
+        email: result.email,
+        jti: crypto.randomUUID(),
+      },
       process.env.JWT_SECRET as string,
       {
         expiresIn: "1h",
       }
     );
-    // Set the JWT token as a cookie in the response
+
     res.cookie("jwt", token_jwt, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 1000 * 60 * 60, // 1 hour
+      maxAge: 1000 * EXPIRATION_SECONDS, // 1h
     });
     res.status(200).json({
       message: "Login successful",
@@ -58,6 +75,24 @@ const register = async (req: Request, res: Response) => {
   }
 };
 const logout = async (req: Request, res: Response) => {
+  const token = req.cookies.jwt;
+  if (!token) {
+    return res
+      .status(200)
+      .json({ message: "No token provided logout succesful" });
+  }
+  const payload = jwt.decode(token) as jwt.JwtPayload & {
+    jti: string;
+    exp: number;
+  };
+  if (payload && payload.jti && payload.exp) {
+    try {
+      await blacklistToken(payload.jti, payload.exp);
+      console.log(`Token with jti ${payload.jti} blacklisted on logout.`);
+    } catch (err) {
+      console.error("Błąd podczas blacklistowania tokena przy logout:", err);
+    }
+  }
   res.clearCookie("jwt", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
@@ -66,4 +101,54 @@ const logout = async (req: Request, res: Response) => {
   res.status(200).json({ message: "Logout successful", succes: true });
 };
 
-export default { loging, register, logout };
+const loging_with_google = async (req: Request, res: Response) => {
+  const { login, email, google_id } = req.body;
+  if (!login || !email || !google_id) {
+    return res
+      .status(400)
+      .json({ message: "Login, email, and google_id are required" });
+  }
+  try {
+    let user;
+    const existingUser = await getUserByGoogleId(google_id);
+
+    if (existingUser) {
+      user = existingUser;
+    } else {
+      const existingEmailUser = await getUserByEmail(email);
+
+      if (existingEmailUser) {
+        user = await linkGoogleIdToExistingUser(email, google_id);
+      } else user = await addGoogleUser(login, email, google_id);
+    }
+
+    const token_jwt = jwt.sign(
+      {
+        sub: user.id,
+        login: user.login,
+        email: user.email,
+        jti: crypto.randomUUID(),
+        exp: EXPIRATION_SECONDS,
+      },
+
+      process.env.JWT_SECRET as string
+    );
+
+    res.cookie("jwt", token_jwt, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
+      maxAge: EXPIRATION_SECONDS,
+    });
+
+    res.status(200).json({
+      message: "Login with Google successful",
+      username: user.login,
+    });
+  } catch (error) {
+    console.error("Login with Google error:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+export default { loging, register, logout, loging_with_google };

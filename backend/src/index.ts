@@ -5,14 +5,12 @@ declare global {
     }
   }
 }
-import express, { Request, Response } from "express";
-import auth from "./auth/auth";
+import express from "express";
 import cookieParser from "cookie-parser";
-import rateLimiter from "./middleware/rate-limiter";
-import csrfProtection from "./middleware/csrfProtection";
-import { authenticateJWT } from "./middleware/authenticatejwt";
+
 import dotenv from "dotenv";
 import cors from "cors";
+import { connectRedis } from "./redis";
 import router from "./routes";
 import logger from "./middleware/logger";
 
@@ -33,14 +31,17 @@ app.use(cookieParser());
 app.use(logger);
 
 app.use("/", router);
-const port = process.env.PORT ? Number(process.env.PORT) : 3000;
-const host = process.env.HOST || "0.0.0.0";
-app
-  .listen(port, host, () => {
-    console.log(`starting server at url http://${host}:${port}`);
-  })
-  .on("error", (err) => {
-    console.error("Failed to start server:", err);
-  });
-
+const startServer = async () => {
+  await connectRedis();
+  const port = process.env.PORT ? Number(process.env.PORT) : 3000;
+  const host = process.env.HOST || "0.0.0.0";
+  app
+    .listen(port, () => {
+      console.log(`starting server at url http://${host}:${port}`);
+    })
+    .on("error", (err) => {
+      console.error("Failed to start server:", err);
+    });
+};
+startServer();
 export default app;

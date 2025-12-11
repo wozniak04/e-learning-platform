@@ -45,14 +45,10 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       withCredentials: true,
     });
     axios
-      .post(
-        `${BACKEND_URL}/logout`,
-        {},
-        {
-          withCredentials: true,
-          headers: { "x-csrf-token": tokencsrf.data.csrfToken },
-        }
-      )
+      .delete(`${BACKEND_URL}/logout`, {
+        withCredentials: true,
+        headers: { "x-csrf-token": tokencsrf.data.csrfToken },
+      })
       .catch((error) => console.error("Logout failed:", error));
     setusername("");
     setisAuthenticated(false);

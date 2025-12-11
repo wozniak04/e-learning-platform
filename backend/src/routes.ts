@@ -12,17 +12,30 @@ const router = Router();
 router.get("/", (req: Request, res: Response) => {
   res.send("init");
 });
-router.post("/login", whoisthis, rateLimiter.loginLimiter, auth.loging);
-router.post("/register", whoisthis, rateLimiter.registerLimiter, auth.register);
-router.post("/logout", whoisthis, csrfProtection, auth.logout);
-router.get(
-  "/csrf-token",
-  authenticateJWT,
+router.post(
+  "/login",
+  whoisthis,
   csrfProtection,
-  (req: Request, res: Response) => {
-    res.json({ csrfToken: req.csrfToken() });
-  }
+  rateLimiter.loginLimiter,
+  auth.loging
 );
+router.post(
+  "/login-google",
+  whoisthis,
+  csrfProtection,
+  auth.loging_with_google
+);
+router.post(
+  "/register",
+  whoisthis,
+  csrfProtection,
+  rateLimiter.registerLimiter,
+  auth.register
+);
+router.delete("/logout", whoisthis, csrfProtection, auth.logout);
+router.get("/csrf-token", csrfProtection, (req: Request, res: Response) => {
+  res.json({ csrfToken: req.csrfToken() });
+});
 router.get("/me", authenticateJWT, (req: Request, res: Response) => {
   res.json({ user: req.user.login });
 });

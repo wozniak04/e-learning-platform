@@ -11,11 +11,13 @@ import {
   addGoogleUser,
   getUserByEmail,
   linkGoogleIdToExistingUser,
+  marklogin,
 } from "../operations_with_db/users";
-import { link } from "fs";
+import { OAuth2Client, TokenPayload } from "google-auth-library";
+
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 dotenv.config();
-
 const loging = async (req: Request, res: Response) => {
   try {
     const { login, password } = req.body;
@@ -40,7 +42,7 @@ const loging = async (req: Request, res: Response) => {
         expiresIn: "1h",
       }
     );
-
+    marklogin(result.id);
     res.cookie("jwt", token_jwt, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -102,19 +104,36 @@ const logout = async (req: Request, res: Response) => {
 };
 
 const loging_with_google = async (req: Request, res: Response) => {
-  const { login, email, google_id } = req.body;
-  if (!login || !email || !google_id) {
+  const { token } = req.body;
+  if (!token) {
     return res
       .status(400)
       .json({ message: "Login, email, and google_id are required" });
   }
   try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload: TokenPayload | undefined = ticket.getPayload();
+    if (!payload) {
+      return res
+        .status(500)
+        .json({ message: "Błąd weryfikacji tokena Google." });
+    }
+    const google_id = payload.sub as string;
+    const email = payload.email as string;
+    const login = payload.name as string;
+
     let user;
     const existingUser = await getUserByGoogleId(google_id);
 
     if (existingUser) {
+      console.log("uzytkonik istnieje");
       user = existingUser;
     } else {
+      console.log("tworze nowego uzytkonika google");
       const existingEmailUser = await getUserByEmail(email);
 
       if (existingEmailUser) {
@@ -128,17 +147,17 @@ const loging_with_google = async (req: Request, res: Response) => {
         login: user.login,
         email: user.email,
         jti: crypto.randomUUID(),
-        exp: EXPIRATION_SECONDS,
       },
 
-      process.env.JWT_SECRET as string
+      process.env.JWT_SECRET as string,
+      { expiresIn: "1h" }
     );
-
+    marklogin(user.id);
     res.cookie("jwt", token_jwt, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: EXPIRATION_SECONDS,
+      maxAge: 1000 * EXPIRATION_SECONDS,
     });
 
     res.status(200).json({

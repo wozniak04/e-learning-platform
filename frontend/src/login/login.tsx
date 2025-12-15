@@ -3,6 +3,9 @@ import { useState, useEffect } from "react";
 import authapi from "../Api/authapi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
+import { jwtDecode } from "jwt-decode";
+import type { GoogleTokenPayload } from "../types.ts";
 
 function LoginPage() {
   const auth = useAuth();
@@ -10,6 +13,25 @@ function LoginPage() {
   const [password, setpassword] = useState("");
   const [errormessage, seterrormessage] = useState("");
   const navigate = useNavigate();
+  const onSuccess = async (response: CredentialResponse) => {
+    if (!response.credential) {
+      console.log("No credential returned");
+      return;
+    }
+
+    const loginres = await authapi.login_with_google(response.credential);
+    console.log(loginres.username);
+    if (loginres) {
+      auth.login(loginres.username);
+      navigate("/main");
+    } else {
+      seterrormessage("Logowanie z Google nie powiodło się");
+    }
+  };
+  const onError = () => {
+    console.log("Login Failed");
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const res = await authapi.login(login_input, password);
@@ -44,6 +66,7 @@ function LoginPage() {
         <a href="#">
           <p>Zapomniałem hasła</p>
         </a>
+        <GoogleLogin onSuccess={onSuccess} onError={onError} />
         <a href="#" onClick={() => navigate("/register")}>
           <p>założ konto</p>
         </a>

@@ -41,4 +41,23 @@ async function register(email: string, user_login: string, password: string) {
   }
 }
 
-export default { login, register };
+const login_with_google = async (token: string) => {
+  try {
+    const tokencsrf = await axios.get(`${BACKEND_URL}/csrf-token`, {
+      withCredentials: true,
+    });
+    const response = await axios.post(
+      `${BACKEND_URL}/login/google`,
+      { token },
+      {
+        withCredentials: true,
+        headers: { "x-csrf-token": tokencsrf.data.csrfToken },
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+export default { login, register, login_with_google };

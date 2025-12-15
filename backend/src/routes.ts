@@ -20,7 +20,7 @@ router.post(
   auth.loging
 );
 router.post(
-  "/login-google",
+  "/login/google",
   whoisthis,
   csrfProtection,
   auth.loging_with_google

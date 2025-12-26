@@ -1,21 +1,11 @@
 import { Request, Response } from "express";
-import operations from "../operations_with_db/auth";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import crypto from "crypto";
 import { blacklistToken } from "./jwtblacklist";
 import { EXPIRATION_SECONDS } from "../values";
-import {
-  getUserByLoginFromFront,
-  getUserByGoogleId,
-  addGoogleUser,
-  getUserByEmail,
-  linkGoogleIdToExistingUser,
-  marklogin,
-} from "../operations_with_db/users";
-import { OAuth2Client, TokenPayload } from "google-auth-library";
-
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+import { marklogin } from "../operations_with_db/users";
+import auth from "../operations_with_db/auth";
 
 dotenv.config();
 const loging = async (req: Request, res: Response) => {
@@ -26,10 +16,11 @@ const loging = async (req: Request, res: Response) => {
         .status(400)
         .json({ message: "Login and password are required" });
     }
-    const result = await getUserByLoginFromFront(login);
+    const result = await auth.login(login, password);
     if (!result) {
       return res.status(401).json({ message: "Invalid login or password" });
     }
+
     const token_jwt = jwt.sign(
       {
         sub: result.id,
@@ -42,7 +33,7 @@ const loging = async (req: Request, res: Response) => {
         expiresIn: "1h",
       }
     );
-    marklogin(result.id);
+
     res.cookie("jwt", token_jwt, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -66,7 +57,7 @@ const register = async (req: Request, res: Response) => {
       .json({ message: "Email, login, and password are required" });
   }
   try {
-    const result = await operations.register(email, login, password);
+    const result = await auth.register(email, login, password);
     if (!result.succes) {
       return res.status(400).json({ message: result.message });
     }
@@ -111,36 +102,10 @@ const loging_with_google = async (req: Request, res: Response) => {
       .json({ message: "Login, email, and google_id are required" });
   }
   try {
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: process.env.GOOGLE_CLIENT_ID,
-    });
-
-    const payload: TokenPayload | undefined = ticket.getPayload();
-    if (!payload) {
-      return res
-        .status(500)
-        .json({ message: "Błąd weryfikacji tokena Google." });
+    const user = await auth.login_with_google(token);
+    if (!user) {
+      return res.status(401).json({ message: "Invalid google token" });
     }
-    const google_id = payload.sub as string;
-    const email = payload.email as string;
-    const login = payload.name as string;
-
-    let user;
-    const existingUser = await getUserByGoogleId(google_id);
-
-    if (existingUser) {
-      console.log("uzytkonik istnieje");
-      user = existingUser;
-    } else {
-      console.log("tworze nowego uzytkonika google");
-      const existingEmailUser = await getUserByEmail(email);
-
-      if (existingEmailUser) {
-        user = await linkGoogleIdToExistingUser(email, google_id);
-      } else user = await addGoogleUser(login, email, google_id);
-    }
-
     const token_jwt = jwt.sign(
       {
         sub: user.id,

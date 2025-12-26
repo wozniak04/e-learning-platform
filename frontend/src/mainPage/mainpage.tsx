@@ -5,17 +5,15 @@ import TopNav from "./topnav/TopNav";
 import Courses from "./courses/Courses";
 function MainPage() {
   const auth = useAuth();
-  const [username, setusername] = useState("");
+
   const wylogowanie = () => {
     auth.logout();
   };
-  useEffect(() => {
-    setusername(auth.username);
-  }, []);
+
   return (
     <>
       <div className="box">
-        <TopNav username={username} wylogowanie={wylogowanie} />
+        <TopNav username={auth.username} wylogowanie={wylogowanie} />
         <Courses />
       </div>
     </>

@@ -1,11 +1,12 @@
 import { useState, useContext, createContext, useEffect } from "react";
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const BACKEND_URL = import.meta.env.VITE_BACKEND_URL as string;
 interface AuthContextType {
   isAuthenticated: boolean;
   username: string;
+  isloading: boolean;
   login: (user: string) => void;
   logout: () => void;
 }
@@ -14,8 +15,10 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [isAuthenticated, setisAuthenticated] = useState(false);
   const [username, setusername] = useState("");
+  const [isloading, setIsloading] = useState(true);
 
   useEffect(() => {
     axios
@@ -24,7 +27,17 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         if (res.data.user) {
           console.log("wazny token");
           login(res.data.user);
-          navigate("/main");
+
+          if (localStorage.getItem("lastPath"))
+            navigate(localStorage.getItem("lastPath")!);
+          else if (
+            location.pathname !== "/login" &&
+            location.pathname !== "/register"
+          )
+            navigate(location.pathname);
+          else navigate("/main");
+
+          localStorage.removeItem("lastPath");
         } else {
           logout();
         }
@@ -33,6 +46,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         console.log(err);
         console.log("nie wazny token");
         logout();
+      })
+      .finally(() => {
+        setIsloading(false);
       });
   }, []);
 
@@ -50,11 +66,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         headers: { "x-csrf-token": tokencsrf.data.csrfToken },
       })
       .catch((error) => console.error("Logout failed:", error));
+
     setusername("");
     setisAuthenticated(false);
   };
   return (
-    <AuthContext.Provider value={{ isAuthenticated, username, login, logout }}>
+    <AuthContext.Provider
+      value={{ isAuthenticated, username, isloading, login, logout }}
+    >
       {children}
     </AuthContext.Provider>
   );

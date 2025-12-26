@@ -4,8 +4,6 @@ import authapi from "../Api/authapi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
-import { jwtDecode } from "jwt-decode";
-import type { GoogleTokenPayload } from "../types.ts";
 
 function LoginPage() {
   const auth = useAuth();
@@ -23,7 +21,8 @@ function LoginPage() {
     console.log(loginres.username);
     if (loginres) {
       auth.login(loginres.username);
-      navigate("/main");
+      navigate(localStorage.getItem("lastPath") || "/main");
+      localStorage.removeItem("lastPath");
     } else {
       seterrormessage("Logowanie z Google nie powiodło się");
     }

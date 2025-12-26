@@ -1,19 +1,14 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./AuthContext";
-import { useEffect, useState } from "react";
 import Spinner from "./Spinner";
 
 function PrivateLayout() {
-  const auth = useAuth();
-  const [loading, setLoading] = useState(true);
+  const { isloading, isAuthenticated } = useAuth();
 
-  useEffect(() => {
-    setLoading(false);
-  }, []);
-
-  if (loading) return <Spinner />;
-
-  return auth.isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
+  if (isloading) return <Spinner />;
+  console.log("PrivateLayout - isAuthenticated:", isAuthenticated);
+  console.log("localStorage lastPath:", localStorage.getItem("lastPath"));
+  return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 }
 
 export default PrivateLayout;

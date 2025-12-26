@@ -1,9 +1,26 @@
 import pool from "./connectdb";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
+import { OAuth2Client, TokenPayload } from "google-auth-library";
+import {
+  getUserByGoogleId,
+  addGoogleUser,
+  getUserByEmail,
+  linkGoogleIdToExistingUser,
+  marklogin,
+} from "../operations_with_db/users";
+import type {
+  login_with_google,
+  register_result,
+  login_result,
+} from "../types";
+const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 dotenv.config();
 
-const login = async (login_from_front: string, password_from_front: string) => {
+const login = async (
+  login_from_front: string,
+  password_from_front: string
+): Promise<login_result | null> => {
   try {
     const res = await pool.query("SELECT (login($1)).*;", [login_from_front]);
     if (!res.rows.length || !res.rows[0].password_hash) {
@@ -28,7 +45,11 @@ const login = async (login_from_front: string, password_from_front: string) => {
   }
 };
 
-const register = async (email: string, login: string, password: string) => {
+const register = async (
+  email: string,
+  login: string,
+  password: string
+): Promise<register_result> => {
   if (!email || !login || !password) {
     return {
       succes: false,
@@ -57,7 +78,15 @@ const register = async (email: string, login: string, password: string) => {
       hashed_password,
       email,
     ]);
-    return { succes: true, result: res.rows[0].add_user };
+    if (res.rows.length === 0)
+      return {
+        succes: true,
+        message: "User registered successfully",
+      };
+    return {
+      succes: false,
+      message: "Registration failed",
+    };
   } catch (err) {
     console.error("Register error: ", err);
     return {
@@ -67,7 +96,7 @@ const register = async (email: string, login: string, password: string) => {
   }
 };
 
-const hashPassword = async (password: string) => {
+const hashPassword = async (password: string): Promise<string> => {
   const hashed_password = await bcrypt.hash(
     password,
     Number(process.env.SALT_ROUNDS)
@@ -75,4 +104,42 @@ const hashPassword = async (password: string) => {
   return hashed_password;
 };
 
-export default { login, register };
+const login_with_google = async (
+  token: string
+): Promise<login_with_google | null> => {
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: token,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload: TokenPayload | undefined = ticket.getPayload();
+    if (!payload) {
+      return null;
+    }
+    const google_id = payload.sub as string;
+    const email = payload.email as string;
+    const login = payload.name as string;
+
+    let user: login_with_google | null;
+    const existingUser = await getUserByGoogleId(google_id);
+
+    if (existingUser) {
+      console.log("uzytkonik istnieje");
+      user = existingUser;
+    } else {
+      console.log("tworze nowego uzytkonika google");
+      const existingEmailUser = await getUserByEmail(email);
+
+      if (existingEmailUser) {
+        user = await linkGoogleIdToExistingUser(email, google_id);
+      } else user = await addGoogleUser(login, email, google_id);
+    }
+    return user;
+  } catch (err) {
+    console.error("Błąd podczas logowania z Google:", err);
+    return null;
+  }
+};
+
+export default { login, register, login_with_google };

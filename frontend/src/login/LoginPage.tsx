@@ -1,16 +1,16 @@
 import "./loginpage.css";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import authapi from "../Api/authapi";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
-
+import { toast } from "react-toastify";
 function LoginPage() {
   const auth = useAuth();
   const [login_input, setlogin] = useState("");
   const [password, setpassword] = useState("");
-  const [errormessage, seterrormessage] = useState("");
   const navigate = useNavigate();
+
   const onSuccess = async (response: CredentialResponse) => {
     if (!response.credential) {
       console.log("No credential returned");
@@ -20,15 +20,17 @@ function LoginPage() {
     const loginres = await authapi.login_with_google(response.credential);
     console.log(loginres.username);
     if (loginres) {
+      toast.success("Pomyślnie zalogowano z Google");
       auth.login(loginres.username);
       navigate(localStorage.getItem("lastPath") || "/main");
       localStorage.removeItem("lastPath");
     } else {
-      seterrormessage("Logowanie z Google nie powiodło się");
+      toast.error("Logowanie z Google nie powiodło się");
     }
   };
   const onError = () => {
     console.log("Login Failed");
+    toast.error("Logowanie z Google nie powiodło się");
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -38,15 +40,15 @@ function LoginPage() {
     if (res) {
       auth.login(res.username);
       navigate("/main");
+      toast.success("Pomyślnie zalogowano");
     } else {
-      seterrormessage("zły login lub hasło");
+      toast.error("Zły login lub hasło");
     }
   };
   return (
     <>
       <form className="window" onSubmit={handleSubmit}>
         <h1>Logowanie</h1>
-        {errormessage && <div className="error-message">{errormessage}</div>}
         <input
           name="email"
           type="text"

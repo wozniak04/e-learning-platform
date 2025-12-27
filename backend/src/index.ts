@@ -34,10 +34,10 @@ app.use("/", router);
 const startServer = async () => {
   await connectRedis();
   const port = process.env.PORT ? Number(process.env.PORT) : 3000;
-  const host = process.env.HOST || "0.0.0.0";
+
   app
     .listen(port, () => {
-      console.log(`starting server at url http://${host}:${port}`);
+      console.log(`starting server at url http://localhost:${port}`);
     })
     .on("error", (err) => {
       console.error("Failed to start server:", err);

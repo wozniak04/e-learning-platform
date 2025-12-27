@@ -1,8 +1,7 @@
 import { useState, useContext, createContext, useEffect } from "react";
 import axios from "axios";
 import { useNavigate, useLocation } from "react-router-dom";
-
-const BACKEND_URL = import.meta.env.VITE_BACKEND_URL as string;
+import { BACKEND_URL } from "../variables";
 interface AuthContextType {
   isAuthenticated: boolean;
   username: string;

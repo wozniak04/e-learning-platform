@@ -5,15 +5,16 @@ import { useParams } from "react-router-dom";
 function Course() {
   const [page, setpage] = useState(1);
   const [maxpage, setmaxpage] = useState(0);
-  const { id } = useParams<{ id: string }>();
+  const { url } = useParams<{ url: string }>();
   useEffect(() => {
+    console.log("Course URL:", url);
     setmaxpage(5);
   }, []);
 
   return (
     <div className="Course-container">
       <Link to="/main">Back to Main Page</Link>
-      <h1>{id}</h1>
+      <h1>{url}</h1>
       <h2>
         Course Component - Page {page} of {maxpage}
       </h2>

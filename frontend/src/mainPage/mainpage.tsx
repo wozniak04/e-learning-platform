@@ -1,12 +1,13 @@
-import { useEffect, useState } from "react";
 import { useAuth } from "../auth/AuthContext";
 import "./mainpage.css";
 import TopNav from "./topnav/TopNav";
 import Courses from "./courses/Courses";
+import { toast } from "react-toastify";
 function MainPage() {
   const auth = useAuth();
 
   const wylogowanie = () => {
+    toast.info("Wylogowano pomyślnie.");
     auth.logout();
   };
 

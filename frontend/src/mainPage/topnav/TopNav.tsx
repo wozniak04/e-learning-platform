@@ -1,5 +1,5 @@
 import "./topnav.css";
-import { use, useState } from "react";
+import { useState } from "react";
 import Settings_popup from "./Settings_popup";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";

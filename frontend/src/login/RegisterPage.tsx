@@ -2,42 +2,38 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./register.css";
 import authapi from "../Api/authapi";
-
+import { toast } from "react-toastify";
 function RegisterPage() {
   const [login_input, setlogin] = useState("");
   const [email, setemail] = useState("");
   const [password, setpassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
-  const [errormessage, seterrormessage] = useState("");
-  const [success, setsuccess] = useState("");
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!login_input || !email || !password || !repeatPassword) {
-      seterrormessage("Wypełnij wszystkie pola.");
-      setsuccess("");
+      toast.error("Wypełnij wszystkie pola.");
+
       return;
     }
     if (password !== repeatPassword) {
-      seterrormessage("Hasła się nie zgadzają.");
-      setsuccess("");
+      toast.error("Hasła się nie zgadzają.");
+
       return;
     }
     try {
       const res = await authapi.register(login_input, email, password);
       if (!res || res.status !== 201) {
         console.log(res);
-        seterrormessage(res ? res.message : "Błąd rejestracji.");
-        setsuccess("");
+        toast.error(res ? res.message : "Błąd rejestracji.");
         return;
       }
-      setsuccess("Rejestracja udana! Możesz się zalogować.");
-      seterrormessage("");
+      toast.success("Rejestracja udana! Możesz się zalogować.");
       navigate("/login");
     } catch (error) {
-      seterrormessage("Błąd rejestracji.");
-      setsuccess("");
+      toast.error("Błąd rejestracji.");
       console.error(error);
     }
   };
@@ -45,8 +41,6 @@ function RegisterPage() {
   return (
     <form className="window" onSubmit={handleSubmit}>
       <h1>Rejestracja</h1>
-      {errormessage && <div className="error-message">{errormessage}</div>}
-      {success && <div className="success-message">{success}</div>}
       <input
         name="username"
         type="text"

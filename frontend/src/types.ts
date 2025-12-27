@@ -1,15 +1,15 @@
-export interface GoogleTokenPayload {
-  iss: string;
-  azp: string;
-  aud: string;
-  sub: string;
-  exp: number;
-  iat: number;
-  email: string;
-  email_verified: boolean;
+export interface Course {
   name: string;
-  picture: string;
-  given_name: string;
-  family_name: string;
-  locale: string;
+  description: string;
+  url: string;
+  imgsrc?: string;
+}
+export interface CourseState {
+  courses: Course[];
+  isLoading: boolean;
+  error: string | null;
+
+  setCourses: (courses: Course[]) => void;
+  fetchCourses: () => Promise<void>;
+  clearStore: () => void;
 }

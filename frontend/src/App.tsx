@@ -7,6 +7,9 @@ import RegisterPage from "./login/RegisterPage";
 import Course from "./course/Course";
 import PathTracker from "./PathTracker";
 import Create_Course from "./course/Create_Course";
+import NotFoundPage from "./Not_Found";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 function App() {
   return (
     <>
@@ -21,7 +24,9 @@ function App() {
             <Route path="/course/:url" element={<Course />} />
             <Route path="/course/create" element={<Create_Course />} />
           </Route>
+          <Route path="*" element={<NotFoundPage />} />
         </Routes>
+        <ToastContainer position="top-center" autoClose={1700} />
       </AuthProvider>
     </>
   );

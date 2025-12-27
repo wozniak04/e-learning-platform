@@ -1,34 +1,24 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import "./styles/courses.css";
 import Course from "./Course_Card";
-interface course_props {
-  courses?: {
-    name: string;
-    description: string;
-    url: string;
-  }[];
-}
-function Courses(props: course_props) {
-  const exampleCourses = [
-    {
-      name: "Mathematics",
-      description: "Learn about numbers and equations",
-      url: "math",
-    },
-    {
-      name: "Physics",
-      description: "Explore the laws of nature",
-      url: "physics",
-    },
-    {
-      name: "Chemistry",
-      description: "Study the composition of substances",
-      url: "chemistry",
-    },
-  ];
-  const [courses, setCourses] = useState(
-    props.courses ? props.courses : exampleCourses
-  );
+import { useCourseStore } from "../../store/courses";
+import { toast } from "react-toastify";
+
+function Courses() {
+  useEffect(() => {}, []);
+  const courses = useCourseStore((state) => state.courses);
+  const isLoading = useCourseStore((state) => state.isLoading);
+  const fetchCourses = useCourseStore((state) => state.fetchCourses);
+  const error = useCourseStore((state) => state.error);
+  useEffect(() => {
+    fetchCourses();
+  }, []);
+
+  if (isLoading) {
+    return <div>Loading courses...</div>;
+  } else if (error) {
+    toast.error(`błąd podczas pobierania kursow z api: ${error}`);
+  }
   return (
     <div className="courses-container">
       <h2>Courses Component</h2>

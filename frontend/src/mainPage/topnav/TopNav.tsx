@@ -3,18 +3,17 @@ import { useState } from "react";
 import Settings_popup from "./Settings_popup";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
-
-interface TopNavProps {
-  username: string;
-  wylogowanie: () => void;
-}
-
-function TopNav(props: TopNavProps) {
+import { toast } from "react-toastify";
+function TopNav() {
   const navigate = useNavigate();
   const auth = useAuth();
   const [activeSetting, setActiveSetting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
+  const handleLogout = () => {
+    auth.logout();
+    toast.success("Wylogowano pomyślnie");
+  };
   const handleSettingsClick = () => {
     setActiveSetting(!activeSetting);
   };
@@ -74,8 +73,8 @@ function TopNav(props: TopNavProps) {
 
         <div className="topnav__user-section">
           <span className="topnav__username">
-            {props.username ? (
-              props.username
+            {auth.isAuthenticated ? (
+              auth.username
             ) : (
               <Link to="/login" className="login-link">
                 Login
@@ -103,7 +102,7 @@ function TopNav(props: TopNavProps) {
               </button>
             )}
             {activeSetting && auth.isAuthenticated && (
-              <Settings_popup wylogowanie={props.wylogowanie} />
+              <Settings_popup wylogowanie={handleLogout} />
             )}
           </div>
         </div>

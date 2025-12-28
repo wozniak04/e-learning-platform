@@ -49,4 +49,24 @@ const getCoursesCount = async (type: string | null, search: string | null) => {
     return null;
   }
 };
-export default { getAllCourseTypes, getCourses, getCoursesCount };
+
+const getCourseById = async (courseId: string) => {
+  const query = "SELECT * FROM get_course_details_by_url($1)";
+
+  try {
+    const result = await pool.query(query, [courseId]);
+    if (!result) {
+      return null;
+    }
+    return result.rows[0];
+  } catch (error) {
+    console.error("Error fetching course by ID:", error);
+    return null;
+  }
+};
+export default {
+  getAllCourseTypes,
+  getCourses,
+  getCoursesCount,
+  getCourseById,
+};

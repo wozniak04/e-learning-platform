@@ -1,7 +1,7 @@
 import axios from "axios";
 import { BACKEND_URL } from "../variables";
 import { create } from "zustand";
-import type { Course, CourseState } from "../types";
+import type { Course, CourseState } from "./Storetypes";
 
 export const useCourseStore = create<CourseState>((set, get) => ({
   courses: [],
@@ -24,7 +24,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       });
       if (!response) throw new Error("Błąd pobierania");
 
-      const data: Course[] = await response.data.courses;
+      const data: Course[] = response.data.courses;
       set({ courses: data, isLoading: false });
     } catch (err) {
       set({ error: (err as Error).message, isLoading: false });

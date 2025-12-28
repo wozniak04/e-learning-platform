@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 interface Props {
   name: string;
   description: string;
@@ -6,8 +8,9 @@ interface Props {
 }
 
 function Course(props: Props) {
+  const navigate = useNavigate();
   const handleClick = () => {
-    console.log(props.url);
+    navigate(`/course/${props.url}`);
   };
   return (
     <>

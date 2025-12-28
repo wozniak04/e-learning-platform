@@ -4,7 +4,7 @@ import MainPage from "./mainPage/mainpage";
 import { AuthProvider } from "./auth/AuthContext";
 import PrivateLayout from "./auth/Private";
 import RegisterPage from "./login/RegisterPage";
-import Course from "./course/Course";
+import Course from "./course/CourseDetail";
 import PathTracker from "./PathTracker";
 import Create_Course from "./course/Create_Course";
 import NotFoundPage from "./Not_Found";
@@ -21,7 +21,7 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/main" element={<MainPage />} />
           <Route element={<PrivateLayout />}>
-            <Route path="/course/:url" element={<Course />} />
+            <Route path="/course/:id" element={<Course />} />
             <Route path="/course/create" element={<Create_Course />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />

@@ -1,15 +1,15 @@
 import { useEffect } from "react";
 import "./styles/courses.css";
 import Course from "./Course_Card";
-import { useCourseStore } from "../../store/courses";
+import { useCourseStore } from "../../store/coursesStore";
 import { toast } from "react-toastify";
 
 function Courses() {
-  useEffect(() => {}, []);
   const courses = useCourseStore((state) => state.courses);
   const isLoading = useCourseStore((state) => state.isLoading);
   const fetchCourses = useCourseStore((state) => state.fetchCourses);
   const error = useCourseStore((state) => state.error);
+
   useEffect(() => {
     fetchCourses();
   }, []);

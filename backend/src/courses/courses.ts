@@ -55,5 +55,23 @@ const getCoursesCount = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+const getCourseDetailById = async (req: Request, res: Response) => {
+  try {
+    const courseId = req.params.id;
+    const result = await courseDB.getCourseById(courseId);
+    if (!result) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+    return res.status(200).json({ course: result });
+  } catch (error) {
+    console.error("Error fetching course by ID:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
-export default { getAllCourseTypes, getCourses, getCoursesCount };
+export default {
+  getAllCourseTypes,
+  getCourses,
+  getCoursesCount,
+  getCourseDetailById,
+};

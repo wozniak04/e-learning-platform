@@ -22,7 +22,7 @@ export const useCourseStore = create<CourseState>((set, get) => ({
       const response = await axios.get(`${BACKEND_URL}/courses`, {
         withCredentials: true,
       });
-      if (!response) throw new Error("Błąd pobierania");
+      if (!response) throw new Error("Error while fetching");
 
       const data: Course[] = response.data.courses;
       set({ courses: data, isLoading: false });
@@ -31,5 +31,5 @@ export const useCourseStore = create<CourseState>((set, get) => ({
     }
   },
 
-  clearStore: () => set({ courses: [] }),
+  clearStore: () => set({ courses: [], isLoading: false, error: null }),
 }));

@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
-import { useParams } from "react-router-dom";
+import { useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 import TopNav from "../mainPage/topnav/TopNav";
 import { useCourseDetailStore } from "../store/courseDetailStore";
 import "./styles/courseDetail.css";
@@ -8,6 +7,7 @@ import { toast } from "react-toastify";
 
 function Course() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const courseDetail = useCourseDetailStore(
     (state) => state.currentCourseDetail
   );
@@ -25,6 +25,7 @@ function Course() {
   }
   if (error) {
     toast.error(`Błąd podczas pobierania szczegółów kursu: ${error}`);
+    navigate("/main");
   }
 
   const handleEnroll = () => {
@@ -37,11 +38,13 @@ function Course() {
       <div className="course-container">
         <header className="course-header">
           <div className="course-image">
-            {courseDetail?.imgsrc ? (
-              <img src={courseDetail.imgsrc} alt={courseDetail.name} />
-            ) : (
-              <div className="placeholder-img">Brak zdjęcia</div>
-            )}
+            <img
+              src={
+                courseDetail.imgsrc
+                  ? courseDetail.imgsrc
+                  : "https://www.e-learning.pl/wp-content/uploads/2023/06/elpl.jpg"
+              }
+            />
           </div>
 
           <div className="course-info">

@@ -26,9 +26,7 @@ const getCourses = async (
   ];
   try {
     const result = await pool.query(query, values);
-    if (!result) {
-      return null;
-    }
+
     return result.rows;
   } catch (error) {
     console.error("Error fetching courses:", error);
@@ -40,9 +38,7 @@ const getCoursesCount = async (type: string | null, search: string | null) => {
   const values = [type || null, search || null];
   try {
     const result = await pool.query(query, values);
-    if (!result) {
-      return null;
-    }
+
     return result.rows[0].get_courses_count;
   } catch (error) {
     console.error("Error fetching courses count:", error);
@@ -55,7 +51,7 @@ const getCourseById = async (courseId: string) => {
 
   try {
     const result = await pool.query(query, [courseId]);
-    if (!result) {
+    if (result.rows.length === 0) {
       return null;
     }
     return result.rows[0];
@@ -64,9 +60,37 @@ const getCourseById = async (courseId: string) => {
     return null;
   }
 };
+const singToCourseByUserId = async (
+  user_id: string,
+  course_id: string
+): Promise<boolean> => {
+  const query = "SELECT add_course_to_saved_by_url($1, $2)";
+  try {
+    await pool.query(query, [user_id, course_id]);
+    return true;
+  } catch (error) {
+    console.error("error while adding course to saved ones", error);
+    return false;
+  }
+};
+const getSavedCoursesByID = async (
+  userId: string
+): Promise<string[] | null> => {
+  const query = "SELECT * FROM get_user_saved_courses_urls($1);";
+  try {
+    const result = await pool.query(query, [userId]);
+
+    return result.rows;
+  } catch (error) {
+    console.error("error while adding course to saved ones", error);
+    return null;
+  }
+};
 export default {
   getAllCourseTypes,
   getCourses,
   getCoursesCount,
   getCourseById,
+  singToCourseByUserId,
+  getSavedCoursesByID,
 };

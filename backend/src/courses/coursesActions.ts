@@ -68,10 +68,36 @@ const getCourseDetailById = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+const signupToCourse = async (req: Request, res: Response) => {
+  try {
+    const courseId = req.body.courseId;
+    if (!courseId) return res.status(400).json({ message: "bad request" });
+
+    const userId = req.user.sub;
+    const result = await courseDB.singToCourseByUserId(userId, courseId);
+    if (!result) return res.status(500);
+  } catch (error) {
+    console.error("Error fetching course by ID:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+const getSavedCoursesByUserid = async (req: Request, res: Response) => {
+  try {
+    const userId = req.user.sub;
+    if (!userId) return res.status(400).json({ message: "bad request" });
+    const result = await courseDB.getSavedCoursesByID(userId);
+    if (!result) return res.status(404);
+  } catch (error) {
+    console.error("Error fetching Saved Courses", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 export default {
   getAllCourseTypes,
   getCourses,
   getCoursesCount,
   getCourseDetailById,
+  signupToCourse,
+  getSavedCoursesByUserid,
 };

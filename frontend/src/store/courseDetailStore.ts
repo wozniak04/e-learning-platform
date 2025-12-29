@@ -17,14 +17,15 @@ export const useCourseDetailStore = create<CourseDetailState>((set, get) => ({
   setCoursesDetail: (url, courseDetail) => {
     set({ coursesDetail: { ...get().coursesDetail, [url]: courseDetail } });
   },
-  setCourseDetail: (courseDetail) => {
-    set({ currentCourseDetail: courseDetail });
-  },
 
   fetchCoursesDetail: async (url) => {
-    if (!url) return null;
+    if (!url) {
+      set({ error: "no url provided" });
+      return;
+    }
     if (get().coursesDetail[url]) {
-      return get().coursesDetail[url];
+      set({ currentCourseDetail: get().coursesDetail[url] });
+      return;
     }
     set({ isLoading: true, error: null });
     try {
@@ -32,7 +33,9 @@ export const useCourseDetailStore = create<CourseDetailState>((set, get) => ({
       const response = await axios.get(`${BACKEND_URL}/courses/${url}`, {
         withCredentials: true,
       });
-      if (!response) throw new Error("Błąd pobierania");
+      if (!response) {
+        set({ error: "error in response" });
+      }
 
       const data: CourseDetail = response.data.course;
       set({
@@ -40,11 +43,11 @@ export const useCourseDetailStore = create<CourseDetailState>((set, get) => ({
         isLoading: false,
         currentCourseDetail: data,
       });
-      return data;
+      return;
     } catch (err) {
       set({ error: (err as Error).message, isLoading: false });
-      return null;
+      return;
     }
   },
-  clearStore: () => set({ coursesDetail: {} }),
+  clearStore: () => set({ coursesDetail: {}, isLoading: false, error: null }),
 }));

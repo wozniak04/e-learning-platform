@@ -4,7 +4,7 @@ interface Props {
   name: string;
   description: string;
   url: string;
-  imgsrc?: string;
+  imgsrc: string | null;
 }
 
 function Course(props: Props) {
@@ -16,7 +16,11 @@ function Course(props: Props) {
     <>
       <div className="course-card" onClick={handleClick}>
         <img
-          src={props.imgsrc ? props.imgsrc : "https://via.placeholder.com/150"}
+          src={
+            props.imgsrc
+              ? props.imgsrc
+              : "https://www.e-learning.pl/wp-content/uploads/2023/06/elpl.jpg"
+          }
           alt={props.name}
         />
         <h3>{props.name}</h3>

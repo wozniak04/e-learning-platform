@@ -3,7 +3,7 @@ import auth from "./auth/auth";
 import rateLimiter from "./middleware/rate-limiter";
 import csrfProtection from "./middleware/csrfProtection";
 import { authenticateJWT } from "./middleware/authenticatejwt";
-import courses from "./courses/courses";
+import courses from "./courses/coursesActions";
 
 const whoisthis = (req: Request, res: Response, next: Function) => {
   console.log(req.method, req.originalUrl, "from", req.ip);
@@ -25,6 +25,7 @@ router.post(
   "/login/google",
   whoisthis,
   csrfProtection,
+  rateLimiter.loginLimiter,
   auth.loging_with_google
 );
 router.post(
@@ -49,5 +50,7 @@ router.get(
 router.get("/courses", whoisthis, courses.getCourses);
 router.get("/courses/count", whoisthis, courses.getCoursesCount);
 router.get("/courses/:id", whoisthis, courses.getCourseDetailById);
+router.post("/courses/:id/sign", authenticateJWT, courses.signupToCourse);
+router.get("/courses/saved", authenticateJWT, courses.getSavedCoursesByUserid);
 
 export default router;

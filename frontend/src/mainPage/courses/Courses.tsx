@@ -28,6 +28,7 @@ function Courses() {
           name={course.name}
           description={course.description}
           url={course.url}
+          imgsrc={course.imgsrc ? course.imgsrc : null}
         />
       ))}
     </div>

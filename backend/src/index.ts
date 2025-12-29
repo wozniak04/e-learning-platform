@@ -1,7 +1,15 @@
+interface userPayload {
+  login: string;
+  email: string;
+  sub: string;
+  jti: string;
+  exp: number;
+}
+
 declare global {
   namespace Express {
     interface Request {
-      user?: any;
+      user: userPayload;
     }
   }
 }

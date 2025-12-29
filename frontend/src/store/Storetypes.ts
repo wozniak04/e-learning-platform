@@ -30,7 +30,16 @@ export interface CourseDetailState {
   isLoading: boolean;
   error: string | null;
   setCoursesDetail: (url: string, courseDetail: CourseDetail) => void;
-  setCourseDetail: (courseDetail: CourseDetail) => void;
-  fetchCoursesDetail: (url: string | undefined) => Promise<CourseDetail | null>;
+  fetchCoursesDetail: (url: string | undefined) => Promise<undefined>;
+  clearStore: () => void;
+}
+
+export interface savedCourseState {
+  savedCourses: string[];
+  isLoading: boolean;
+  error: string | null;
+  setsavedCourses: (id: string) => void;
+  fetchsavedCourses: () => Promise<void>;
+
   clearStore: () => void;
 }

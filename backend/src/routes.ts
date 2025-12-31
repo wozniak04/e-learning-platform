@@ -49,8 +49,13 @@ router.get(
 );
 router.get("/courses", whoisthis, courses.getCourses);
 router.get("/courses/count", whoisthis, courses.getCoursesCount);
+router.get("/courses/saved", authenticateJWT, courses.getSavedCoursesByUserid);
 router.get("/courses/:id", whoisthis, courses.getCourseDetailById);
 router.post("/courses/:id/sign", authenticateJWT, courses.signupToCourse);
-router.get("/courses/saved", authenticateJWT, courses.getSavedCoursesByUserid);
+router.delete(
+  "/courses/:id/unsign",
+  authenticateJWT,
+  courses.removeSavedCourse
+);
 
 export default router;

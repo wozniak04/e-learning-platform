@@ -7,7 +7,6 @@ export interface Course {
 export interface CourseState {
   courses: Course[];
   isLoading: boolean;
-  error: string | null;
 
   setCourses: (courses: Course[]) => void;
   fetchCourses: () => Promise<void>;
@@ -18,17 +17,16 @@ export interface CourseDetail {
   name: string;
   description?: string;
   material_count: number;
-  owner: string;
+  owner_name: string;
   imgsrc?: string;
   type?: string;
   reviews_count: number;
   average_rating: number;
 }
 export interface CourseDetailState {
-  currentCourseDetail: CourseDetail;
+  currentCourseDetail: CourseDetail | null;
   coursesDetail: { [url: string]: CourseDetail };
   isLoading: boolean;
-  error: string | null;
   setCoursesDetail: (url: string, courseDetail: CourseDetail) => void;
   fetchCoursesDetail: (url: string | undefined) => Promise<undefined>;
   clearStore: () => void;
@@ -37,8 +35,9 @@ export interface CourseDetailState {
 export interface savedCourseState {
   savedCourses: string[];
   isLoading: boolean;
-  error: string | null;
-  setsavedCourses: (id: string) => void;
+  isInSavedCourse: (id: string) => boolean;
+  addToSavedCourses: (id: string) => Promise<void>;
+  removeFromSavedCourse: (id: string) => Promise<void>;
   fetchsavedCourses: () => Promise<void>;
 
   clearStore: () => void;

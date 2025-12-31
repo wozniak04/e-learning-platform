@@ -5,7 +5,7 @@ const getAllCourseTypes = async () => {
     const result = await pool.query("SELECT * FROM get_course_types();");
     return result.rows;
   } catch (error) {
-    console.error("Error fetching course types:", error);
+    console.error("Error fetching course types: ", error);
     return null;
   }
 };
@@ -29,7 +29,7 @@ const getCourses = async (
 
     return result.rows;
   } catch (error) {
-    console.error("Error fetching courses:", error);
+    console.error("Error fetching courses: ", error);
     return null;
   }
 };
@@ -41,7 +41,7 @@ const getCoursesCount = async (type: string | null, search: string | null) => {
 
     return result.rows[0].get_courses_count;
   } catch (error) {
-    console.error("Error fetching courses count:", error);
+    console.error("Error fetching courses count: ", error);
     return null;
   }
 };
@@ -56,11 +56,11 @@ const getCourseById = async (courseId: string) => {
     }
     return result.rows[0];
   } catch (error) {
-    console.error("Error fetching course by ID:", error);
+    console.error("Error fetching course by ID: ", error);
     return null;
   }
 };
-const singToCourseByUserId = async (
+const signToCourse = async (
   user_id: string,
   course_id: string
 ): Promise<boolean> => {
@@ -69,28 +69,41 @@ const singToCourseByUserId = async (
     await pool.query(query, [user_id, course_id]);
     return true;
   } catch (error) {
-    console.error("error while adding course to saved ones", error);
+    console.error("error while adding course to saved ones: ", error);
     return false;
   }
 };
-const getSavedCoursesByID = async (
-  userId: string
-): Promise<string[] | null> => {
+const getSavedCourses = async (userId: string): Promise<string[] | null> => {
   const query = "SELECT * FROM get_user_saved_courses_urls($1);";
   try {
     const result = await pool.query(query, [userId]);
 
-    return result.rows;
+    return result.rows.map((row) => row.url);
   } catch (error) {
-    console.error("error while adding course to saved ones", error);
+    console.error("error while adding course to saved ones: ", error);
     return null;
   }
 };
+const removeSavedCourse = async (
+  userId: string,
+  courseId: string
+): Promise<boolean> => {
+  const query = "SELECT remove_course_from_saved_by_url($1,$2);";
+  try {
+    await pool.query(query, [userId, courseId]);
+    return true;
+  } catch (error) {
+    console.error("error while removing course from saved: ", error);
+    return false;
+  }
+};
+
 export default {
   getAllCourseTypes,
   getCourses,
   getCoursesCount,
   getCourseById,
-  singToCourseByUserId,
-  getSavedCoursesByID,
+  getSavedCourses,
+  signToCourse,
+  removeSavedCourse,
 };

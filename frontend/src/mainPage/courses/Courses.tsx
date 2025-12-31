@@ -2,23 +2,28 @@ import { useEffect } from "react";
 import "./styles/courses.css";
 import Course from "./Course_Card";
 import { useCourseStore } from "../../store/coursesStore";
+import { useSavedCoursesStore } from "../../store/savedCoursesStore";
 import { toast } from "react-toastify";
 
 function Courses() {
   const courses = useCourseStore((state) => state.courses);
   const isLoading = useCourseStore((state) => state.isLoading);
   const fetchCourses = useCourseStore((state) => state.fetchCourses);
-  const error = useCourseStore((state) => state.error);
+  const fetchsavedCourses = useSavedCoursesStore(
+    (state) => state.fetchsavedCourses
+  );
 
   useEffect(() => {
-    fetchCourses();
+    try {
+      fetchsavedCourses();
+      fetchCourses();
+    } catch (error) {
+      toast.error(error as string);
+    }
   }, []);
 
-  if (isLoading) {
-    return <div>Loading courses...</div>;
-  } else if (error) {
-    toast.error(`błąd podczas pobierania kursow z api: ${error}`);
-  }
+  if (isLoading) return <div>Loading courses...</div>;
+
   return (
     <div className="courses-container">
       <h2>Courses Component</h2>

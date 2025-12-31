@@ -5,38 +5,29 @@ import type { CourseDetail, CourseDetailState } from "./Storetypes";
 
 export const useCourseDetailStore = create<CourseDetailState>((set, get) => ({
   coursesDetail: {},
-  currentCourseDetail: {
-    name: "",
-    material_count: 0,
-    owner: "",
-    reviews_count: 0,
-    average_rating: 0,
-  },
+  currentCourseDetail: null,
   isLoading: false,
-  error: null,
   setCoursesDetail: (url, courseDetail) => {
     set({ coursesDetail: { ...get().coursesDetail, [url]: courseDetail } });
   },
 
   fetchCoursesDetail: async (url) => {
     if (!url) {
-      set({ error: "no url provided" });
-      return;
+      throw new Error("no url provided");
     }
     if (get().coursesDetail[url]) {
       set({ currentCourseDetail: get().coursesDetail[url] });
       return;
     }
-    set({ isLoading: true, error: null });
+    set({ isLoading: true });
     try {
       console.log("fetching course detail from backend...");
       const response = await axios.get(`${BACKEND_URL}/courses/${url}`, {
         withCredentials: true,
       });
       if (!response) {
-        set({ error: "error in response" });
+        throw new Error("error in response");
       }
-
       const data: CourseDetail = response.data.course;
       set({
         coursesDetail: { ...get().coursesDetail, [url]: data },
@@ -44,10 +35,10 @@ export const useCourseDetailStore = create<CourseDetailState>((set, get) => ({
         currentCourseDetail: data,
       });
       return;
-    } catch (err) {
-      set({ error: (err as Error).message, isLoading: false });
-      return;
+    } catch (error) {
+      set({ isLoading: false });
+      throw new Error(error as string);
     }
   },
-  clearStore: () => set({ coursesDetail: {}, isLoading: false, error: null }),
+  clearStore: () => set({ coursesDetail: {}, isLoading: false }),
 }));

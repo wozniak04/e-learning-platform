@@ -6,8 +6,8 @@ function PrivateLayout() {
   const { isloading, isAuthenticated } = useAuth();
 
   if (isloading) return <Spinner />;
-  console.log("PrivateLayout - isAuthenticated:", isAuthenticated);
-  console.log("localStorage lastPath:", localStorage.getItem("lastPath"));
+  //console.log("PrivateLayout - isAuthenticated:", isAuthenticated);
+  //console.log("localStorage lastPath:", localStorage.getItem("lastPath"));
   return isAuthenticated ? <Outlet /> : <Navigate to="/login" replace />;
 }
 

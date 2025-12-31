@@ -71,11 +71,13 @@ const getCourseDetailById = async (req: Request, res: Response) => {
 const signupToCourse = async (req: Request, res: Response) => {
   try {
     const courseId = req.body.courseId;
-    if (!courseId) return res.status(400).json({ message: "bad request" });
-
     const userId = req.user.sub;
-    const result = await courseDB.singToCourseByUserId(userId, courseId);
+    if (!courseId || !userId)
+      return res.status(400).json({ message: "bad request" });
+
+    const result = await courseDB.signToCourse(userId, courseId);
     if (!result) return res.status(500);
+    res.status(200).json({ message: "signed to course" });
   } catch (error) {
     console.error("Error fetching course by ID:", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -83,13 +85,33 @@ const signupToCourse = async (req: Request, res: Response) => {
 };
 const getSavedCoursesByUserid = async (req: Request, res: Response) => {
   try {
+    console.log("dupa");
     const userId = req.user.sub;
+    console.log(userId);
     if (!userId) return res.status(400).json({ message: "bad request" });
-    const result = await courseDB.getSavedCoursesByID(userId);
+    const result = await courseDB.getSavedCourses(userId);
     if (!result) return res.status(404);
+
+    res.status(200).json({ savedCourses: result });
   } catch (error) {
     console.error("Error fetching Saved Courses", error);
     return res.status(500).json({ message: "Internal server error" });
+  }
+};
+const removeSavedCourse = async (req: Request, res: Response) => {
+  try {
+    const courseId = req.body.courseId;
+    const userId = req.user.sub;
+    if (!courseId || !userId) res.status(400).json("bad request");
+
+    const result = await courseDB.removeSavedCourse(userId, courseId);
+    if (!result)
+      res.status(404).json({ message: "couldn't remove course from saved" });
+
+    res.status(200).json({ message: "removed course from saved" });
+  } catch (error) {
+    console.error("error while removing course from saved: ", error);
+    res.status(500).json({ message: "error while removing course from saved" });
   }
 };
 
@@ -100,4 +122,5 @@ export default {
   getCourseDetailById,
   signupToCourse,
   getSavedCoursesByUserid,
+  removeSavedCourse,
 };

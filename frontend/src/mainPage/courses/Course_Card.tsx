@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useSavedCoursesStore } from "../../store/savedCoursesStore";
 
 interface Props {
   name: string;
@@ -9,12 +10,14 @@ interface Props {
 
 function Course(props: Props) {
   const navigate = useNavigate();
+  const isSavedCourse = useSavedCoursesStore((state) => state.isInSavedCourse);
   const handleClick = () => {
     navigate(`/course/${props.url}`);
   };
   return (
     <>
       <div className="course-card" onClick={handleClick}>
+        <p>{isSavedCourse(props.url) ? "zapisany" : "niezapisany"}</p>
         <img
           src={
             props.imgsrc

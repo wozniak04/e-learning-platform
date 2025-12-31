@@ -1,35 +1,41 @@
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import TopNav from "../mainPage/topnav/TopNav";
 import { useCourseDetailStore } from "../store/courseDetailStore";
+import { useSavedCoursesStore } from "../store/savedCoursesStore";
 import "./styles/courseDetail.css";
 import { toast } from "react-toastify";
 
 function Course() {
   const { id } = useParams<{ id: string }>();
-  const navigate = useNavigate();
+  const isSavedCourse = useSavedCoursesStore((state) => state.isInSavedCourse);
   const courseDetail = useCourseDetailStore(
     (state) => state.currentCourseDetail
   );
   const fetchCourseDetail = useCourseDetailStore(
     (state) => state.fetchCoursesDetail
   );
-  const error = useCourseDetailStore((state) => state.error);
+
   const loading = useCourseDetailStore((state) => state.isLoading);
   useEffect(() => {
-    fetchCourseDetail(id);
+    try {
+      fetchCourseDetail(id);
+    } catch (err: any) {
+      toast.error(err.message || "Nie udało się pobrać danych kursu");
+    }
   }, [id, fetchCourseDetail]);
 
   if (loading) {
     return <div>loading</div>;
-  }
-  if (error) {
-    toast.error(`Błąd podczas pobierania szczegółów kursu: ${error}`);
-    navigate("/main");
+  } else if (!courseDetail) {
+    return;
   }
 
-  const handleEnroll = () => {
+  const handleSignUp = () => {
     alert("Zapisano na kurs!");
+  };
+  const handleUnSign = () => {
+    alert("wypisano sie!");
   };
 
   return (
@@ -49,17 +55,22 @@ function Course() {
 
           <div className="course-info">
             <h1>{courseDetail.name}</h1>
-            <p className="owner">Prowadzący: {courseDetail.owner}</p>
+            <p className="owner">Prowadzący: {courseDetail.owner_name}</p>
             <div className="stats">
               <span>Ocena: {courseDetail.average_rating} / 10</span>
               <span>Opinie: ({courseDetail.reviews_count})</span>
               <span>Materiały: {courseDetail.material_count}</span>
             </div>
 
-            {/* Przycisk akcji */}
-            <button className="enroll-btn" onClick={handleEnroll}>
-              Zapisz się na kurs
-            </button>
+            {!isSavedCourse(id!) ? (
+              <button className="enroll-btn" onClick={handleSignUp}>
+                Zapisz się na kurs
+              </button>
+            ) : (
+              <button className="enroll-btn" onClick={handleUnSign}>
+                wypisz sie z kursu
+              </button>
+            )}
           </div>
         </header>
 

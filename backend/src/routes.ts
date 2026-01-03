@@ -4,6 +4,7 @@ import rateLimiter from "./middleware/rate-limiter";
 import csrfProtection from "./middleware/csrfProtection";
 import { authenticateJWT } from "./middleware/authenticatejwt";
 import courses from "./courses/coursesActions";
+import { upload } from "./middleware/images";
 
 const whoisthis = (req: Request, res: Response, next: Function) => {
   console.log(req.method, req.originalUrl, "from", req.ip);
@@ -51,11 +52,24 @@ router.get("/courses", whoisthis, courses.getCourses);
 router.get("/courses/count", whoisthis, courses.getCoursesCount);
 router.get("/courses/saved", authenticateJWT, courses.getSavedCoursesByUserid);
 router.get("/courses/:id", whoisthis, courses.getCourseDetailById);
-router.post("/courses/:id/sign", authenticateJWT, courses.signupToCourse);
+router.post(
+  "/courses/:id/sign",
+  whoisthis,
+  authenticateJWT,
+  courses.signupToCourse
+);
 router.delete(
   "/courses/:id/unsign",
+  whoisthis,
   authenticateJWT,
-  courses.removeSavedCourse
+  courses.unsingCourse
+);
+router.post(
+  "/courses/create",
+  whoisthis,
+  authenticateJWT,
+  upload.single("img"),
+  courses.createNewCourse
 );
 
 export default router;

@@ -70,7 +70,7 @@ const getCourseDetailById = async (req: Request, res: Response) => {
 };
 const signupToCourse = async (req: Request, res: Response) => {
   try {
-    const courseId = req.body.courseId;
+    const courseId = req.params.id;
     const userId = req.user.sub;
     if (!courseId || !userId)
       return res.status(400).json({ message: "bad request" });
@@ -81,6 +81,22 @@ const signupToCourse = async (req: Request, res: Response) => {
   } catch (error) {
     console.error("Error fetching course by ID:", error);
     return res.status(500).json({ message: "Internal server error" });
+  }
+};
+const unsingCourse = async (req: Request, res: Response) => {
+  try {
+    const courseId = req.params.id;
+    const userId = req.user.sub;
+    if (!courseId || !userId) res.status(400).json("bad request");
+
+    const result = await courseDB.removeSavedCourse(userId, courseId);
+    if (!result)
+      res.status(404).json({ message: "couldn't remove course from saved" });
+
+    res.status(200).json({ message: "removed course from saved" });
+  } catch (error) {
+    console.error("error while removing course from saved: ", error);
+    res.status(500).json({ message: "error while removing course from saved" });
   }
 };
 const getSavedCoursesByUserid = async (req: Request, res: Response) => {
@@ -98,20 +114,37 @@ const getSavedCoursesByUserid = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-const removeSavedCourse = async (req: Request, res: Response) => {
+
+const createNewCourse = async (req: Request, res: Response) => {
   try {
-    const courseId = req.body.courseId;
+    const {
+      title,
+      description,
+      quick_description,
+      type = null,
+      password = null,
+    } = req.body;
+    if (!title || !description || !quick_description) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+    const img_url = req.file ? (req.file as any).path : null;
     const userId = req.user.sub;
-    if (!courseId || !userId) res.status(400).json("bad request");
-
-    const result = await courseDB.removeSavedCourse(userId, courseId);
-    if (!result)
-      res.status(404).json({ message: "couldn't remove course from saved" });
-
-    res.status(200).json({ message: "removed course from saved" });
+    const result = await courseDB.createNewCourse(
+      userId,
+      title,
+      description,
+      quick_description,
+      type,
+      img_url,
+      password
+    );
+    if (!result) {
+      return res.status(500).json({ message: "Failed to create new course" });
+    }
+    return res.status(200).json({ message: "Course created successfully" });
   } catch (error) {
-    console.error("error while removing course from saved: ", error);
-    res.status(500).json({ message: "error while removing course from saved" });
+    console.error("Error creating new course:", error);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -122,5 +155,6 @@ export default {
   getCourseDetailById,
   signupToCourse,
   getSavedCoursesByUserid,
-  removeSavedCourse,
+  unsingCourse,
+  createNewCourse,
 };

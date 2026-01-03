@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "../auth/AuthContext";
 import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { toast } from "react-toastify";
+import { Link } from "react-router-dom";
 function LoginPage() {
   const auth = useAuth();
   const [login_input, setlogin] = useState("");
@@ -68,9 +69,9 @@ function LoginPage() {
           <p>Zapomniałem hasła</p>
         </a>
         <GoogleLogin onSuccess={onSuccess} onError={onError} />
-        <a href="#" onClick={() => navigate("/register")}>
+        <Link to="/register">
           <p>założ konto</p>
-        </a>
+        </Link>
       </form>
     </>
   );

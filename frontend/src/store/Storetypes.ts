@@ -42,3 +42,21 @@ export interface savedCourseState {
 
   clearStore: () => void;
 }
+
+export interface Create_new_Course_State {
+  isCreating: boolean;
+  title: string;
+  description: string;
+  quick_description: string;
+  type: string;
+  img: File | null;
+  password: string | null;
+  updatetitle: (title: string) => void;
+  updatedescription: (description: string) => void;
+  updatequick_description: (quick_description: string) => void;
+  updatetype: (type: string) => void;
+  updateimg: (img: File | null) => void;
+  updatepassword: (password: string | null) => void;
+  createNewCourse: () => Promise<void>;
+  clearStore: () => void;
+}

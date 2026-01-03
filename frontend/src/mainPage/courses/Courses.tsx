@@ -1,8 +1,8 @@
 import { useEffect } from "react";
 import "./styles/courses.css";
 import Course from "./Course_Card";
-import { useCourseStore } from "../../store/coursesStore";
-import { useSavedCoursesStore } from "../../store/savedCoursesStore";
+import { useCourseStore } from "../../store/Courses/coursesStore";
+import { useSavedCoursesStore } from "../../store/Courses/savedCoursesStore";
 import { toast } from "react-toastify";
 
 function Courses() {

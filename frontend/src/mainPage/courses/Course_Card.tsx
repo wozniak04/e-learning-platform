@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { useSavedCoursesStore } from "../../store/savedCoursesStore";
+import { useSavedCoursesStore } from "../../store/Courses/savedCoursesStore";
 
 interface Props {
   name: string;

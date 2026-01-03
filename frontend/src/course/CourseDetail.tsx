@@ -1,14 +1,24 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import TopNav from "../mainPage/topnav/TopNav";
-import { useCourseDetailStore } from "../store/courseDetailStore";
-import { useSavedCoursesStore } from "../store/savedCoursesStore";
+import { useCourseDetailStore } from "../store/Courses/courseDetailStore";
+import { useSavedCoursesStore } from "../store/Courses/savedCoursesStore";
 import "./styles/courseDetail.css";
 import { toast } from "react-toastify";
 
 function Course() {
   const { id } = useParams<{ id: string }>();
   const isSavedCourse = useSavedCoursesStore((state) => state.isInSavedCourse);
+  const [isSaved, setIsSaved] = useState<boolean>(false);
+  const signuptoCourse = useSavedCoursesStore(
+    (state) => state.addToSavedCourses
+  );
+  const unsigntoCourse = useSavedCoursesStore(
+    (state) => state.removeFromSavedCourse
+  );
+  const fetchsavedCourses = useSavedCoursesStore(
+    (state) => state.fetchsavedCourses
+  );
   const courseDetail = useCourseDetailStore(
     (state) => state.currentCourseDetail
   );
@@ -19,6 +29,8 @@ function Course() {
   const loading = useCourseDetailStore((state) => state.isLoading);
   useEffect(() => {
     try {
+      fetchsavedCourses();
+      setIsSaved(isSavedCourse(id!));
       fetchCourseDetail(id);
     } catch (err: any) {
       toast.error(err.message || "Nie udało się pobrać danych kursu");
@@ -32,10 +44,31 @@ function Course() {
   }
 
   const handleSignUp = () => {
-    alert("Zapisano na kurs!");
+    signuptoCourse(id!)
+      .then(() => {
+        toast.success("zapisano sie na kurs!");
+        setIsSaved(true);
+      })
+      .catch((error) => {
+        if (error.message === "you are already signed up to this course") {
+          setIsSaved(true);
+          toast.info("Jesteś już zapisany na ten kurs");
+          return;
+        }
+        setIsSaved(false);
+        toast.error(error.message || "Nie udało się zapisać na kurs");
+      });
   };
   const handleUnSign = () => {
-    alert("wypisano sie!");
+    unsigntoCourse(id!)
+      .then(() => {
+        setIsSaved(false);
+        toast.success("wypisano sie z kursu!");
+      })
+      .catch((error) => {
+        setIsSaved(true);
+        toast.error(error.message || "Nie udało się wypisać z kursu");
+      });
   };
 
   return (
@@ -62,7 +95,7 @@ function Course() {
               <span>Materiały: {courseDetail.material_count}</span>
             </div>
 
-            {!isSavedCourse(id!) ? (
+            {!isSaved ? (
               <button className="enroll-btn" onClick={handleSignUp}>
                 Zapisz się na kurs
               </button>

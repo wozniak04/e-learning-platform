@@ -1,5 +1,5 @@
 import pool from "./connectdb";
-
+import { nanoid } from "nanoid";
 const getAllCourseTypes = async () => {
   try {
     const result = await pool.query("SELECT * FROM get_course_types();");
@@ -97,6 +97,48 @@ const removeSavedCourse = async (
     return false;
   }
 };
+const createNewCourse = async (
+  userId: string,
+  title: string,
+  description: string,
+  quick_description: string,
+  type: string | null = null,
+  img_url: string | null = null,
+  password: string | null = null,
+  countFunction: number = 0
+) => {
+  const courseUrl = nanoid(10);
+  const query = `SELECT create_new_course($1,$2,$3,$4,$5,$6,$7,$8);`;
+  try {
+    const result = await pool.query(query, [
+      userId,
+      title,
+      courseUrl,
+      type,
+      quick_description,
+      description,
+      img_url,
+      password,
+    ]);
+    return result.rows[0].create_new_course;
+  } catch (error) {
+    if (countFunction < 2) {
+      createNewCourse(
+        userId,
+        title,
+        description,
+        quick_description,
+        type,
+        img_url,
+        password,
+        countFunction + 1
+      );
+    } else {
+      console.error("Error creating new course: ", error);
+      return null;
+    }
+  }
+};
 
 export default {
   getAllCourseTypes,
@@ -106,4 +148,5 @@ export default {
   getSavedCourses,
   signToCourse,
   removeSavedCourse,
+  createNewCourse,
 };

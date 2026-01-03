@@ -18,7 +18,7 @@ import cookieParser from "cookie-parser";
 
 import dotenv from "dotenv";
 import cors from "cors";
-import { connectRedis } from "./redis";
+import { connectRedis } from "./config/redis";
 import router from "./routes";
 import logger from "./middleware/logger";
 

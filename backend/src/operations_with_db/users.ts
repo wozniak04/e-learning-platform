@@ -1,4 +1,4 @@
-import pool from "./connectdb";
+import pool from "../config/connectdb";
 
 export const getUserByEmail = async (email: string) => {
   try {

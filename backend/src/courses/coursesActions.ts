@@ -1,5 +1,6 @@
-import { Request, Response } from "express";
+import e, { Request, Response } from "express";
 import courseDB from "../operations_with_db/courses";
+import { get } from "http";
 
 const getAllCourseTypes = async (req: Request, res: Response) => {
   try {
@@ -147,6 +148,164 @@ const createNewCourse = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+const deleteCourseById = async (req: Request, res: Response) => {
+  const courseId = req.params.id;
+  const userId = req.user.sub;
+  if (!courseId || !userId) {
+    return res.status(400).json({ message: "bad request" });
+  }
+  try {
+    const ownerId = await courseDB.get_course_owner_id(courseId);
+    if (ownerId !== userId) {
+      return res.status(403).json({ message: "forbidden" });
+    }
+    const result = await courseDB.deleteCourseById(courseId);
+    if (!result) {
+      return res.status(500).json({ message: "Failed to delete course" });
+    }
+
+    return res.status(200).json({ message: "Course deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting course by ID:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+const editCourseById = async (req: Request, res: Response) => {
+  const courseId = req.params.id;
+  const userId = req.user.sub;
+  const {
+    title = null,
+    type = null,
+    quick_description = null,
+    description = null,
+    img_url = null,
+    password = null,
+  } = req.body;
+  if (!courseId || !userId) {
+    return res.status(400).json({ message: "bad request" });
+  }
+  try {
+    const ownerId = await courseDB.get_course_owner_id(courseId);
+    if (ownerId !== userId) {
+      return res.status(403).json({ message: "forbidden" });
+    }
+    const result = await courseDB.editCourseById(
+      courseId,
+      title,
+      type,
+      quick_description,
+      description,
+      img_url,
+      password
+    );
+    if (!result) {
+      return res.status(500).json({ message: "Failed to edit course" });
+    }
+    return res.status(200).json({ message: "Course edited successfully" });
+  } catch (error) {
+    console.error("Error fetching course owner ID:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+const addCourseMaterial = async (req: Request, res: Response) => {
+  const courseId = req.params.id;
+  const userId = req.user.sub;
+  const { title, acapits } = req.body;
+  if (!courseId || !userId || !title || !acapits) {
+    return res.status(400).json({ message: "bad request" });
+  }
+  try {
+    const ownerId = await courseDB.get_course_owner_id(courseId);
+    if (ownerId !== userId) {
+      return res.status(403).json({ message: "forbidden" });
+    }
+    const result = await courseDB.addCourseMaterial(courseId, title, acapits);
+    if (!result) {
+      return res.status(500).json({ message: "Failed to add course material" });
+    }
+    return res
+      .status(200)
+      .json({ message: "Course material added successfully" });
+  } catch (error) {
+    console.error("Error fetching course owner ID:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+const editCourseMaterial = async (req: Request, res: Response) => {
+  const courseId = req.params.id;
+  const userId = req.user.sub;
+  const { materialPage, title = null, acapits = null } = req.body;
+  if (!courseId || !userId || !materialPage) {
+    return res.status(400).json({ message: "bad request" });
+  }
+  try {
+    const ownerId = await courseDB.get_course_owner_id(courseId);
+    if (ownerId !== userId) {
+      return res.status(403).json({ message: "forbidden" });
+    }
+    const result = await courseDB.editCourseMaterial(
+      courseId,
+      materialPage,
+      title,
+      acapits
+    );
+    if (!result) {
+      return res
+        .status(500)
+        .json({ message: "Failed to edit course material" });
+    }
+    return res
+      .status(200)
+      .json({ message: "Course material edited successfully" });
+  } catch (error) {
+    console.error("Error fetching course owner ID:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+const getCourseMaterialsCount = async (req: Request, res: Response) => {
+  const courseId = req.params.id;
+  const userId = req.user.sub;
+  if (!courseId || !userId) {
+    return res.status(400).json({ message: "bad request" });
+  }
+  try {
+    const result = await courseDB.getCourseMaterialsCount(courseId);
+    if (!result) {
+      return res
+        .status(500)
+        .json({ message: "Failed to fetch course materials count" });
+    }
+    return res.status(200).json({ materialsCount: result });
+  } catch (error) {
+    console.error("Error fetching course owner ID:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+const getCourseMaterial = async (req: Request, res: Response) => {
+  const courseId = req.params.id;
+  const startPage = req.query.startpage
+    ? parseInt(req.query.startpage as string)
+    : null;
+  const endPage = req.query.endpage
+    ? parseInt(req.query.endpage as string)
+    : null;
+  try {
+    const result = await courseDB.get_Course_material(
+      courseId,
+      startPage as Number,
+      endPage as Number
+    );
+    if (!result) {
+      return res
+        .status(500)
+        .json({ message: "Failed to fetch course material" });
+    }
+    return res.status(200).json({ courseMaterial: result });
+  } catch (error) {
+    console.error("Error fetching course material:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 export default {
   getAllCourseTypes,
@@ -157,4 +316,10 @@ export default {
   getSavedCoursesByUserid,
   unsingCourse,
   createNewCourse,
+  deleteCourseById,
+  editCourseById,
+  addCourseMaterial,
+  editCourseMaterial,
+  getCourseMaterialsCount,
+  getCourseMaterial,
 };

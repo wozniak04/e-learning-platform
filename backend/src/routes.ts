@@ -71,5 +71,41 @@ router.post(
   upload.single("img"),
   courses.createNewCourse
 );
+router.delete(
+  "/courses/:id/delete",
+  whoisthis,
+  authenticateJWT,
+  courses.deleteCourseById
+);
+router.put(
+  "/courses/:id/edit",
+  whoisthis,
+  authenticateJWT,
+  courses.editCourseById
+);
+router.post(
+  "/courses/:id/material",
+  whoisthis,
+  authenticateJWT,
+  courses.addCourseMaterial
+);
+router.put(
+  "/courses/:id/material/edit",
+  whoisthis,
+  authenticateJWT,
+  courses.editCourseMaterial
+);
+router.get(
+  "/courses/:id/material/count",
+  whoisthis,
+  authenticateJWT,
+  courses.getCourseMaterialsCount
+);
+router.get(
+  "/courses/:id/material",
+  whoisthis,
+  authenticateJWT,
+  courses.getCourseMaterial
+);
 
 export default router;

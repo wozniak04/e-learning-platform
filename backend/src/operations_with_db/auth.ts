@@ -1,4 +1,4 @@
-import pool from "./connectdb";
+import pool from "../config/connectdb";
 import bcrypt from "bcrypt";
 import dotenv from "dotenv";
 import { OAuth2Client, TokenPayload } from "google-auth-library";

@@ -32,7 +32,7 @@ function Course() {
       fetchsavedCourses();
       setIsSaved(isSavedCourse(id!));
       fetchCourseDetail(id);
-    } catch (err: any) {
+    } catch (err: Error | any) {
       toast.error(err.message || "Nie udało się pobrać danych kursu");
     }
   }, [id, fetchCourseDetail]);

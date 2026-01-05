@@ -1,5 +1,7 @@
-import pool from "./connectdb";
+import e from "express";
+import pool from "../config/connectdb";
 import { nanoid } from "nanoid";
+import { get } from "http";
 const getAllCourseTypes = async () => {
   try {
     const result = await pool.query("SELECT * FROM get_course_types();");
@@ -139,6 +141,110 @@ const createNewCourse = async (
     }
   }
 };
+const get_course_owner_id = async (courseId: string) => {
+  const query = `SELECT get_course_owner_id_by_url($1) AS owner_id;`;
+  try {
+    const result = await pool.query(query, [courseId]);
+    return result.rows[0].get_course_owner_by_url;
+  } catch (error) {
+    console.error("Error fetching course owner ID: ", error);
+    return null;
+  }
+};
+const deleteCourseById = async (courseId: string) => {
+  const query = `SELECT delete_course_by_url($1);`;
+  try {
+    await pool.query(query, [courseId]);
+    return true;
+  } catch (error) {
+    console.error("Error deleting course by ID: ", error);
+    return false;
+  }
+};
+const editCourseById = async (
+  courseId: string,
+  title: string | null = null,
+  type: string | null = null,
+  quick_description: string | null = null,
+  description: string | null = null,
+  img_url: string | null = null,
+  password: string | null = null
+) => {
+  const query = `SELECT update_course_by_url($1,$2,$3,$4,$5,$6,$7);`;
+  try {
+    const result = await pool.query(query, [
+      courseId,
+      title,
+      type,
+      quick_description,
+      description,
+      img_url,
+      password,
+    ]);
+    return result.rows[0].update_course_by_url;
+  } catch (error) {
+    console.error("Error editing course by ID: ", error);
+    return null;
+  }
+};
+const addCourseMaterial = async (
+  courseId: string,
+  title: string,
+  acapits: string[]
+) => {
+  const query = `SELECT add_course_material($1,$2,$3);`;
+  try {
+    await pool.query(query, [courseId, title, acapits]);
+    return true;
+  } catch (error) {
+    console.error("Error adding course material: ", error);
+    return false;
+  }
+};
+const editCourseMaterial = async (
+  courseId: string,
+  materialPage: string,
+  title: string | null = null,
+  acapits: string[] | null = null
+) => {
+  const query = `SELECT edit_course_material($1,$2,$3,$4);`;
+  try {
+    await pool.query(query, [courseId, materialPage, title, acapits]);
+    return true;
+  } catch (error) {
+    console.error("Error editing course material: ", error);
+    return false;
+  }
+};
+const getCourseMaterialsCount = async (courseId: string) => {
+  const query = `SELECT get_course_page_count($1) AS materials_count;`;
+  try {
+    const result = await pool.query(query, [courseId]);
+    return result.rows[0].materials_count;
+  } catch (error) {
+    console.error("Error fetching course materials count: ", error);
+    return null;
+  }
+};
+const get_Course_material = async (
+  courseId: string,
+  startPage: Number,
+  endPage: Number
+) => {
+  const query = `
+        SELECT * FROM get_all_course_pages($1)
+        WHERE (page_number >= COALESCE($2, -2147483648)) 
+          AND (page_number <= COALESCE($3, 2147483647))
+        ORDER BY page_number ASC;
+    `;
+  try {
+    const result = await pool.query(query, [courseId, startPage, endPage]);
+    return result.rows;
+  } catch (error) {
+    console.error("Error fetching course material: ", error);
+    return null;
+  }
+};
 
 export default {
   getAllCourseTypes,
@@ -149,4 +255,11 @@ export default {
   signToCourse,
   removeSavedCourse,
   createNewCourse,
+  get_course_owner_id,
+  deleteCourseById,
+  editCourseById,
+  addCourseMaterial,
+  editCourseMaterial,
+  getCourseMaterialsCount,
+  get_Course_material,
 };

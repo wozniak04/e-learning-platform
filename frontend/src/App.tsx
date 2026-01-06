@@ -9,6 +9,7 @@ import PathTracker from "./PathTracker";
 import Create_Course from "./course/Create_Course";
 import NotFoundPage from "./Not_Found";
 import { ToastContainer } from "react-toastify";
+import EditCourse from "./course/EditCourse";
 import "react-toastify/dist/ReactToastify.css";
 function App() {
   return (
@@ -22,7 +23,13 @@ function App() {
           <Route path="/main" element={<MainPage />} />
           <Route element={<PrivateLayout />}>
             <Route path="/course/:id" element={<Course />} />
+            <Route path="/course/:id/edit" element={<EditCourse />} />
             <Route path="/course/create" element={<Create_Course />} />
+            <Route
+              path="/course/create/materials"
+              element={<div>materialy</div>}
+            />
+            <Route path="/course/:id/learn/:page" element={<img src="#" />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

@@ -10,7 +10,7 @@ export const useSavedCoursesStore = create<savedCourseState>((set, get) => ({
     const courses = get().savedCourses;
     if (courses.length >= 5)
       throw new Error("you can sing up to only 5 courses");
-    if (courses.includes(id))
+    if (courses.some((course) => course.url === id))
       throw new Error("you are already signed up to this course");
 
     try {
@@ -21,7 +21,7 @@ export const useSavedCoursesStore = create<savedCourseState>((set, get) => ({
           withCredentials: true,
         }
       );
-      set({ savedCourses: [...get().savedCourses, id] });
+      set({ savedCourses: [...get().savedCourses, { url: id, page: 1 }] });
       console.log("kursy ulubione: ", get().savedCourses);
     } catch (error) {
       throw new Error(error as string);
@@ -33,7 +33,7 @@ export const useSavedCoursesStore = create<savedCourseState>((set, get) => ({
         withCredentials: true,
       });
       set({
-        savedCourses: get().savedCourses.filter((courseId) => courseId !== id),
+        savedCourses: get().savedCourses.filter((course) => course.url !== id),
       });
       console.log("kursy ulubione: ", get().savedCourses);
     } catch (error) {
@@ -42,10 +42,14 @@ export const useSavedCoursesStore = create<savedCourseState>((set, get) => ({
   },
 
   isInSavedCourse: (id) => {
-    return get().savedCourses.includes(id);
+    return get().savedCourses.some((course) => course.url === id);
+  },
+  getPageOfSavedCourse: (id: string) => {
+    const course = get().savedCourses.find((course) => course.url === id);
+    return course ? course.page : null;
   },
   fetchsavedCourses: async () => {
-    if (get().savedCourses.length > 0) return;
+    if (get().savedCourses.length > 0) return get().savedCourses;
 
     try {
       set({ isLoading: true });
@@ -53,8 +57,10 @@ export const useSavedCoursesStore = create<savedCourseState>((set, get) => ({
         withCredentials: true,
       });
       if (!result) throw new Error("Error while fetching");
+      console.log("fetched saved courses: ", result.data.savedCourses);
       set({ savedCourses: result.data.savedCourses });
       set({ isLoading: false });
+      return result.data.savedCourses;
     } catch (error) {
       set({ isLoading: false });
       throw new Error(error as string);

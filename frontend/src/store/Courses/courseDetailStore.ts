@@ -10,7 +10,27 @@ export const useCourseDetailStore = create<CourseDetailState>((set, get) => ({
   setCoursesDetail: (url, courseDetail) => {
     set({ coursesDetail: { ...get().coursesDetail, [url]: courseDetail } });
   },
+  setCurrentCourseDetail: (url, courseDetail) => {
+    const coursesDetail = { ...get().coursesDetail };
+    if (!coursesDetail[url]) {
+      coursesDetail[url] = courseDetail;
+      set({ coursesDetail: coursesDetail, currentCourseDetail: courseDetail });
+      return;
+    }
+    delete coursesDetail[url];
+    coursesDetail[url] = courseDetail;
+    set({ currentCourseDetail: courseDetail, coursesDetail: coursesDetail });
+  },
+  replaceFirstCourseDetailWithNewCourseDetail: (newUrl, newCourseDetail) => {
+    const updatedDetails = { ...get().coursesDetail };
+    const firstKey = Object.keys(updatedDetails)[0];
 
+    delete updatedDetails[firstKey];
+
+    updatedDetails[newUrl] = newCourseDetail;
+
+    set({ coursesDetail: updatedDetails });
+  },
   fetchCoursesDetail: async (url) => {
     if (!url) {
       throw new Error("no url provided");
@@ -29,8 +49,10 @@ export const useCourseDetailStore = create<CourseDetailState>((set, get) => ({
         throw new Error("error in response");
       }
       const data: CourseDetail = response.data.course;
+      Object.keys(get().coursesDetail).length < 150
+        ? set({ coursesDetail: { ...get().coursesDetail, [url]: data } })
+        : get().replaceFirstCourseDetailWithNewCourseDetail(url, data);
       set({
-        coursesDetail: { ...get().coursesDetail, [url]: data },
         isLoading: false,
         currentCourseDetail: data,
       });
@@ -40,5 +62,6 @@ export const useCourseDetailStore = create<CourseDetailState>((set, get) => ({
       throw new Error(error as string);
     }
   },
+
   clearStore: () => set({ coursesDetail: {}, isLoading: false }),
 }));

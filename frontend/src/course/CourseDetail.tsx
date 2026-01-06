@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import TopNav from "../mainPage/topnav/TopNav";
 import { useCourseDetailStore } from "../store/Courses/courseDetailStore";
 import { useSavedCoursesStore } from "../store/Courses/savedCoursesStore";
 import "./styles/courseDetail.css";
 import { toast } from "react-toastify";
+import NotFoundPage from "../Not_Found";
 
 function Course() {
+  const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
-  const isSavedCourse = useSavedCoursesStore((state) => state.isInSavedCourse);
   const [isSaved, setIsSaved] = useState<boolean>(false);
+  const [Page, setPage] = useState<Number | null>(null);
   const signuptoCourse = useSavedCoursesStore(
     (state) => state.addToSavedCourses
   );
@@ -18,6 +20,9 @@ function Course() {
   );
   const fetchsavedCourses = useSavedCoursesStore(
     (state) => state.fetchsavedCourses
+  );
+  const getPageOfSavedCourse = useSavedCoursesStore(
+    (state) => state.getPageOfSavedCourse
   );
   const courseDetail = useCourseDetailStore(
     (state) => state.currentCourseDetail
@@ -29,18 +34,20 @@ function Course() {
   const loading = useCourseDetailStore((state) => state.isLoading);
   useEffect(() => {
     try {
-      fetchsavedCourses();
-      setIsSaved(isSavedCourse(id!));
+      fetchsavedCourses().then((res) => {
+        setIsSaved(res.some((course) => course.url === id));
+        setPage(getPageOfSavedCourse(id!)!);
+      });
       fetchCourseDetail(id);
     } catch (err: Error | any) {
       toast.error(err.message || "Nie udało się pobrać danych kursu");
     }
-  }, [id, fetchCourseDetail]);
+  }, [id]);
 
   if (loading) {
     return <div>loading</div>;
   } else if (!courseDetail) {
-    return;
+    return <NotFoundPage />;
   }
 
   const handleSignUp = () => {
@@ -48,11 +55,13 @@ function Course() {
       .then(() => {
         toast.success("zapisano sie na kurs!");
         setIsSaved(true);
+        setPage(1);
       })
       .catch((error) => {
         if (error.message === "you are already signed up to this course") {
           setIsSaved(true);
           toast.info("Jesteś już zapisany na ten kurs");
+          setPage(getPageOfSavedCourse(id!)!);
           return;
         }
         setIsSaved(false);
@@ -63,6 +72,7 @@ function Course() {
     unsigntoCourse(id!)
       .then(() => {
         setIsSaved(false);
+        setPage(null);
         toast.success("wypisano sie z kursu!");
       })
       .catch((error) => {
@@ -100,14 +110,21 @@ function Course() {
                 Zapisz się na kurs
               </button>
             ) : (
-              <button className="enroll-btn" onClick={handleUnSign}>
-                wypisz sie z kursu
-              </button>
+              <>
+                <button className="enroll-btn" onClick={handleUnSign}>
+                  wypisz sie z kursu
+                </button>
+                <button
+                  className="enroll-btn"
+                  onClick={() => navigate(`/course/${id}/learn/${Page}`)}
+                >
+                  przejdź do kursu
+                </button>
+              </>
             )}
           </div>
         </header>
 
-        {/* Sekcja opisu */}
         <section className="course-description">
           <h2>O kursie</h2>
           <p>{courseDetail.description}</p>
@@ -116,12 +133,10 @@ function Course() {
 
         <hr />
 
-        {/* Sekcja komentarzy (miejsce na Twój przyszły kod) */}
         <section className="course-comments">
           <h2>Sekcja komentarzy</h2>
           <div className="comment-placeholder">
             <p>Tu pojawią się opinie użytkowników...</p>
-            {/* Tutaj będziesz mógł zmapować listę komentarzy */}
           </div>
         </section>
       </div>

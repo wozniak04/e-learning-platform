@@ -142,7 +142,9 @@ const createNewCourse = async (req: Request, res: Response) => {
     if (!result) {
       return res.status(500).json({ message: "Failed to create new course" });
     }
-    return res.status(200).json({ message: "Course created successfully" });
+    return res
+      .status(200)
+      .json({ message: "Course created successfully", courseId: result });
   } catch (error) {
     console.error("Error creating new course:", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -178,12 +180,12 @@ const editCourseById = async (req: Request, res: Response) => {
     type = null,
     quick_description = null,
     description = null,
-    img_url = null,
     password = null,
   } = req.body;
   if (!courseId || !userId) {
     return res.status(400).json({ message: "bad request" });
   }
+  const img_url = req.file ? (req.file as any).path : null;
   try {
     const ownerId = await courseDB.get_course_owner_id(courseId);
     if (ownerId !== userId) {
@@ -210,8 +212,8 @@ const editCourseById = async (req: Request, res: Response) => {
 const addCourseMaterial = async (req: Request, res: Response) => {
   const courseId = req.params.id;
   const userId = req.user.sub;
-  const { title, acapits } = req.body;
-  if (!courseId || !userId || !title || !acapits) {
+  const { title, content } = req.body;
+  if (!courseId || !userId || !title || !content) {
     return res.status(400).json({ message: "bad request" });
   }
   try {
@@ -219,7 +221,7 @@ const addCourseMaterial = async (req: Request, res: Response) => {
     if (ownerId !== userId) {
       return res.status(403).json({ message: "forbidden" });
     }
-    const result = await courseDB.addCourseMaterial(courseId, title, acapits);
+    const result = await courseDB.addCourseMaterial(courseId, title, content);
     if (!result) {
       return res.status(500).json({ message: "Failed to add course material" });
     }
@@ -234,7 +236,7 @@ const addCourseMaterial = async (req: Request, res: Response) => {
 const editCourseMaterial = async (req: Request, res: Response) => {
   const courseId = req.params.id;
   const userId = req.user.sub;
-  const { materialPage, title = null, acapits = null } = req.body;
+  const { materialPage, title = null, content = null } = req.body;
   if (!courseId || !userId || !materialPage) {
     return res.status(400).json({ message: "bad request" });
   }
@@ -247,7 +249,7 @@ const editCourseMaterial = async (req: Request, res: Response) => {
       courseId,
       materialPage,
       title,
-      acapits
+      content
     );
     if (!result) {
       return res

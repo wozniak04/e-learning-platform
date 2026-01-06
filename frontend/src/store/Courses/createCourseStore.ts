@@ -5,6 +5,7 @@ import type { Create_new_Course_State } from "../Storetypes";
 export const useCreateNewCourseStore = create<Create_new_Course_State>(
   (set, get) => ({
     isCreating: false,
+    isCreated: false,
     title: "",
     updatetitle: (title) => {
       set({ title });
@@ -47,12 +48,18 @@ export const useCreateNewCourseStore = create<Create_new_Course_State>(
           formData.append("img", img);
         }
 
-        await axios.post(`${BACKEND_URL}/courses/create`, formData, {
-          withCredentials: true,
-        });
+        const result = await axios.post(
+          `${BACKEND_URL}/courses/create`,
+          formData,
+          {
+            withCredentials: true,
+          }
+        );
 
-        set({ isCreating: false });
+        set({ isCreating: false, isCreated: true });
         get().clearStore();
+
+        return result.data.courseId;
       } catch (error: any) {
         set({ isCreating: false });
 
@@ -61,6 +68,7 @@ export const useCreateNewCourseStore = create<Create_new_Course_State>(
         );
       }
     },
+
     clearStore: () => {
       set({
         isCreating: false,
@@ -70,6 +78,7 @@ export const useCreateNewCourseStore = create<Create_new_Course_State>(
         type: "",
         img: null,
         password: null,
+        isCreated: false,
       });
     },
   })

@@ -1,37 +1,21 @@
-import React from "react";
+import React, { useEffect } from "react";
 import TopNav from "../mainPage/topnav/TopNav";
-import { useCreateNewCourseStore } from "../store/Courses/createCourseStore";
+import { useCourseDetailStore } from "../store/Courses/courseDetailStore";
 import "./styles/create_Course.css";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 
-function Create_Course() {
+function EditCourse() {
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const {
-    title,
-    updatetitle,
-    description,
-    updatedescription,
-    quick_description,
-    updatequick_description,
-    type,
-    updatetype,
-    img,
-    updateimg,
-    password,
-    updatepassword,
-    isCreating,
-    createNewCourse,
-  } = useCreateNewCourseStore();
 
+  useEffect(() => {}, [id]);
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     try {
-      const courseId = await createNewCourse();
-      toast.success("Kurs został zapisany pomyślnie!");
-
-      navigate(`/course/${courseId}/edit`);
+      await updateCourseInformation(id!);
+      toast.success("Kurs został edytowany pomyślnie!");
     } catch (error: any) {
       toast.error(error.message);
     }
@@ -42,7 +26,7 @@ function Create_Course() {
       <TopNav />
 
       <div className="form-wrapper">
-        <h1>Stwórz nowy kurs</h1>
+        <h1>Edytuj kurs</h1>
 
         <form className="create-form" onSubmit={handleSubmit}>
           <div className="input-group">
@@ -50,7 +34,7 @@ function Create_Course() {
             <input
               type="text"
               placeholder="..."
-              value={title}
+              value={currentCourseDetail.name}
               onChange={(e) => updatetitle(e.target.value)}
               required
             />
@@ -61,7 +45,7 @@ function Create_Course() {
             <input
               type="text"
               placeholder="Krótki tekst zachęcający do kursu..."
-              value={quick_description}
+              value={currentCourseDetail.quick_description}
               onChange={(e) => updatequick_description(e.target.value)}
               required
             />
@@ -126,14 +110,16 @@ function Create_Course() {
               {img && <p className="file-info">✓ Wybrano: {img.name}</p>}
             </div>
           </div>
-
+          <Link to={`course/${id}/materials`}>
+            <button className="submit-btn">Dodaj materiały</button>
+          </Link>
           <button
             id="save-btn"
             type="submit"
             disabled={isCreating}
             className="submit-btn"
           >
-            {isCreating ? "Trwa przesyłanie..." : "Zapisz kurs"}
+            {isCreating ? "Trwa przesyłanie..." : "opublikuj zmiany"}
           </button>
         </form>
       </div>
@@ -141,4 +127,4 @@ function Create_Course() {
   );
 }
 
-export default Create_Course;
+export default EditCourse;

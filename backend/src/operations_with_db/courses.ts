@@ -1,7 +1,5 @@
-import e from "express";
 import pool from "../config/connectdb";
 import { nanoid } from "nanoid";
-import { get } from "http";
 const getAllCourseTypes = async () => {
   try {
     const result = await pool.query("SELECT * FROM get_course_types();");
@@ -18,7 +16,7 @@ const getCourses = async (
   limit: number,
   offset: number
 ) => {
-  const query = `SELECT * FROM get_courses($1, $2, $3, $4, $5)`;
+  const query = `SELECT * FROM get_courses($1, $2, $3, $4, $5);`;
   const values = [
     type || null,
     search || null,
@@ -36,7 +34,7 @@ const getCourses = async (
   }
 };
 const getCoursesCount = async (type: string | null, search: string | null) => {
-  const query = `SELECT * FROM get_courses_count($1, $2)`;
+  const query = `SELECT * FROM get_courses_count($1, $2);`;
   const values = [type || null, search || null];
   try {
     const result = await pool.query(query, values);
@@ -49,7 +47,7 @@ const getCoursesCount = async (type: string | null, search: string | null) => {
 };
 
 const getCourseById = async (courseId: string) => {
-  const query = "SELECT * FROM get_course_details_by_url($1)";
+  const query = "SELECT * FROM get_course_details_by_url($1);";
 
   try {
     const result = await pool.query(query, [courseId]);
@@ -66,7 +64,7 @@ const signToCourse = async (
   user_id: string,
   course_id: string
 ): Promise<boolean> => {
-  const query = "SELECT add_course_to_saved_by_url($1, $2)";
+  const query = "SELECT add_course_to_saved_by_url($1, $2);";
   try {
     await pool.query(query, [user_id, course_id]);
     return true;
@@ -75,12 +73,13 @@ const signToCourse = async (
     return false;
   }
 };
-const getSavedCourses = async (userId: string): Promise<string[] | null> => {
+const getSavedCourses = async (
+  userId: string
+): Promise<{ url: string; page: number }[] | null> => {
   const query = "SELECT * FROM get_user_saved_courses_urls($1);";
   try {
     const result = await pool.query(query, [userId]);
-
-    return result.rows.map((row) => row.url);
+    return result.rows;
   } catch (error) {
     console.error("error while adding course to saved ones: ", error);
     return null;
@@ -110,7 +109,7 @@ const createNewCourse = async (
   countFunction: number = 0
 ) => {
   const courseUrl = nanoid(10);
-  const query = `SELECT create_new_course($1,$2,$3,$4,$5,$6,$7,$8);`;
+  const query = `SELECT create_new_course($1,$2,$3,$4,$5,$6,$7,$8,$9);`;
   try {
     const result = await pool.query(query, [
       userId,
@@ -122,7 +121,7 @@ const createNewCourse = async (
       img_url,
       password,
     ]);
-    return result.rows[0].create_new_course;
+    return courseUrl;
   } catch (error) {
     if (countFunction < 2) {
       createNewCourse(
@@ -205,11 +204,11 @@ const editCourseMaterial = async (
   courseId: string,
   materialPage: string,
   title: string | null = null,
-  acapits: string[] | null = null
+  content: string | null = null
 ) => {
   const query = `SELECT edit_course_material($1,$2,$3,$4);`;
   try {
-    await pool.query(query, [courseId, materialPage, title, acapits]);
+    await pool.query(query, [courseId, materialPage, title, content]);
     return true;
   } catch (error) {
     console.error("Error editing course material: ", error);

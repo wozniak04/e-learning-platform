@@ -1,9 +1,9 @@
 import axios from "axios";
 import { BACKEND_URL } from "../../variables";
 import { create } from "zustand";
-import type { Course, CourseState } from "../Storetypes";
+import type { Course, CourseCardState } from "../Storetypes";
 
-export const useCourseStore = create<CourseState>((set, get) => ({
+export const useCoursesCardStore = create<CourseCardState>((set, get) => ({
   courses: [],
   isLoading: false,
 

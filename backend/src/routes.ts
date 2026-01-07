@@ -43,11 +43,7 @@ router.get("/csrf-token", csrfProtection, (req: Request, res: Response) => {
 router.get("/me", authenticateJWT, (req: Request, res: Response) => {
   res.json({ user: req.user.login });
 });
-router.get(
-  "/courses/create/get_all_course_types",
-  whoisthis,
-  courses.getAllCourseTypes
-);
+
 router.get("/courses", whoisthis, courses.getCourses);
 router.get("/courses/count", whoisthis, courses.getCoursesCount);
 router.get("/courses/saved", authenticateJWT, courses.getSavedCoursesByUserid);
@@ -81,6 +77,7 @@ router.put(
   "/courses/:id/edit",
   whoisthis,
   authenticateJWT,
+  upload.single("img"),
   courses.editCourseById
 );
 router.post(

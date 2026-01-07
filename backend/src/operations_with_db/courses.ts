@@ -1,23 +1,17 @@
 import pool from "../config/connectdb";
 import { nanoid } from "nanoid";
-const getAllCourseTypes = async () => {
-  try {
-    const result = await pool.query("SELECT * FROM get_course_types();");
-    return result.rows;
-  } catch (error) {
-    console.error("Error fetching course types: ", error);
-    return null;
-  }
-};
+
 const getCourses = async (
+  userId: number | null,
   type: string | null,
   search: string | null,
   sort: string | null,
   limit: number,
   offset: number
 ) => {
-  const query = `SELECT * FROM get_courses($1, $2, $3, $4, $5);`;
+  const query = `SELECT * FROM get_all_courses_info($1, $2, $3, $4, $5, $6);`;
   const values = [
+    userId,
     type || null,
     search || null,
     sort || "newest",
@@ -27,7 +21,11 @@ const getCourses = async (
   try {
     const result = await pool.query(query, values);
 
-    return result.rows;
+    return result.rows.reduce((acc, course) => {
+      const { url, ...rest } = course;
+      acc[url] = rest;
+      return acc;
+    }, {});
   } catch (error) {
     console.error("Error fetching courses: ", error);
     return null;
@@ -47,14 +45,18 @@ const getCoursesCount = async (type: string | null, search: string | null) => {
 };
 
 const getCourseById = async (courseId: string) => {
-  const query = "SELECT * FROM get_course_details_by_url($1);";
+  const query = "select * from get_course_info_by_url($1);";
 
   try {
     const result = await pool.query(query, [courseId]);
     if (result.rows.length === 0) {
       return null;
     }
-    return result.rows[0];
+    return result.rows.reduce((acc, course) => {
+      const { url, ...rest } = course; // Destrukturyzacja: wyciągamy url, reszta trafia do 'rest'
+      acc[url] = rest; // Przypisujemy do obiektu pod kluczem url
+      return acc;
+    }, {});
   } catch (error) {
     console.error("Error fetching course by ID: ", error);
     return null;
@@ -246,7 +248,6 @@ const get_Course_material = async (
 };
 
 export default {
-  getAllCourseTypes,
   getCourses,
   getCoursesCount,
   getCourseById,

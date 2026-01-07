@@ -3,6 +3,33 @@ import jwt from "jsonwebtoken";
 import { isTokenBlacklisted } from "../auth/jwtblacklist";
 import { EXPIRATION_SECONDS } from "../values";
 
+export const getUserIdFromRequest = async (
+  req: Request
+): Promise<number | null> => {
+  const token = req.cookies.jwt;
+  if (!token) {
+    return null;
+  }
+  try {
+    const payload = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string
+    ) as jwt.JwtPayload & {
+      login: string;
+      email: string;
+      sub: string;
+      jti: string;
+      exp: number;
+    };
+    if (await isTokenBlacklisted(payload.jti)) {
+      return null;
+    }
+    return parseInt(payload.sub);
+  } catch (err) {
+    return null;
+  }
+};
+
 export const authenticateJWT = async (
   req: Request,
   res: Response,

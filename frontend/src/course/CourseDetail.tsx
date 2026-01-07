@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import TopNav from "../mainPage/topnav/TopNav";
-import { useCourseDetailStore } from "../store/Courses/courseDetailStore";
+import { useCoursesInfoStore } from "../store/Courses/CourseInfoStore";
 import { useSavedCoursesStore } from "../store/Courses/savedCoursesStore";
 import "./styles/courseDetail.css";
 import { toast } from "react-toastify";
+import type { CourseDetail } from "../store/Storetypes";
 import NotFoundPage from "../Not_Found";
 
 function Course() {
@@ -12,6 +13,7 @@ function Course() {
   const { id } = useParams<{ id: string }>();
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [Page, setPage] = useState<Number | null>(null);
+  const [courseDetail, setCourseDetail] = useState<CourseDetail | null>(null);
   const signuptoCourse = useSavedCoursesStore(
     (state) => state.addToSavedCourses
   );
@@ -24,21 +26,22 @@ function Course() {
   const getPageOfSavedCourse = useSavedCoursesStore(
     (state) => state.getPageOfSavedCourse
   );
-  const courseDetail = useCourseDetailStore(
-    (state) => state.currentCourseDetail
+  const getCourseDetail = useCoursesInfoStore(
+    (state) => state.getCourseInfoToDetail
   );
-  const fetchCourseDetail = useCourseDetailStore(
-    (state) => state.fetchCoursesDetail
-  );
+  const loading = useCoursesInfoStore((state) => state.isLoading);
 
-  const loading = useCourseDetailStore((state) => state.isLoading);
   useEffect(() => {
     try {
       fetchsavedCourses().then((res) => {
         setIsSaved(res.some((course) => course.url === id));
         setPage(getPageOfSavedCourse(id!)!);
       });
-      fetchCourseDetail(id);
+      getCourseDetail(id!).then((data) => {
+        if (data) {
+          setCourseDetail(data);
+        }
+      });
     } catch (err: Error | any) {
       toast.error(err.message || "Nie udało się pobrać danych kursu");
     }
@@ -97,12 +100,12 @@ function Course() {
           </div>
 
           <div className="course-info">
-            <h1>{courseDetail.name}</h1>
+            <h1>{courseDetail.title}</h1>
             <p className="owner">Prowadzący: {courseDetail.owner_name}</p>
             <div className="stats">
-              <span>Ocena: {courseDetail.average_rating} / 10</span>
+              {/* <span>Ocena: {courseDetail.average_rating} / 10</span>
               <span>Opinie: ({courseDetail.reviews_count})</span>
-              <span>Materiały: {courseDetail.material_count}</span>
+              <span>Materiały: {courseDetail.material_count}</span> */}
             </div>
 
             {!isSaved ? (

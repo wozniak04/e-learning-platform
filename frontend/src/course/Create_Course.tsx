@@ -1,39 +1,49 @@
-import React from "react";
+import React, { useState } from "react";
 import TopNav from "../mainPage/topnav/TopNav";
-import { useCreateNewCourseStore } from "../store/Courses/createCourseStore";
 import "./styles/create_Course.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import axios from "axios";
+import { BACKEND_URL } from "../variables";
 
 function Create_Course() {
   const navigate = useNavigate();
-  const {
-    title,
-    updatetitle,
-    description,
-    updatedescription,
-    quick_description,
-    updatequick_description,
-    type,
-    updatetype,
-    img,
-    updateimg,
-    password,
-    updatepassword,
-    isCreating,
-    createNewCourse,
-  } = useCreateNewCourseStore();
+
+  const [isCreating, setIsCreating] = useState(false);
+  const [title, setTitle] = useState("");
+  const [quickDescription, setQuickDescription] = useState("");
+  const [description, setDescription] = useState("");
+  const [type, setType] = useState("");
+  const [password, setPassword] = useState("");
+  const [img, setImg] = useState<File | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsCreating(true);
 
     try {
-      const courseId = await createNewCourse();
-      toast.success("Kurs został zapisany pomyślnie!");
+      const formData = new FormData();
+      formData.append("title", title);
+      formData.append("description", description);
+      formData.append("quick_description", quickDescription);
+      if (type) formData.append("type", type);
+      if (password) formData.append("password", password);
+      if (img) formData.append("img", img);
 
-      navigate(`/course/${courseId}/edit`);
+      const result = await axios.post(
+        `${BACKEND_URL}/courses/create`,
+        formData,
+        { withCredentials: true }
+      );
+
+      toast.success("Kurs został zapisany pomyślnie!");
+      navigate(`/course/${result.data.courseId}/edit`);
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(
+        error.response?.data?.message || "Błąd podczas tworzenia kursu"
+      );
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -51,7 +61,7 @@ function Create_Course() {
               type="text"
               placeholder="..."
               value={title}
-              onChange={(e) => updatetitle(e.target.value)}
+              onChange={(e) => setTitle(e.target.value)}
               required
             />
           </div>
@@ -61,8 +71,8 @@ function Create_Course() {
             <input
               type="text"
               placeholder="Krótki tekst zachęcający do kursu..."
-              value={quick_description}
-              onChange={(e) => updatequick_description(e.target.value)}
+              value={quickDescription}
+              onChange={(e) => setQuickDescription(e.target.value)}
               required
             />
           </div>
@@ -72,7 +82,7 @@ function Create_Course() {
             <textarea
               placeholder="Szczegółowy program kursu i informacje..."
               value={description}
-              onChange={(e) => updatedescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value)}
               required
             />
           </div>
@@ -90,7 +100,7 @@ function Create_Course() {
                 type="text"
                 placeholder="Np :(programowanie, matematyka...)"
                 value={type}
-                onChange={(e) => updatetype(e.target.value)}
+                onChange={(e) => setType(e.target.value)}
               />
             </div>
 
@@ -99,8 +109,8 @@ function Create_Course() {
               <input
                 type="password"
                 placeholder="Ustaw, jeśli kurs prywatny"
-                value={password || ""}
-                onChange={(e) => updatepassword(e.target.value)}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
           </div>
@@ -111,7 +121,7 @@ function Create_Course() {
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => updateimg(e.target.files?.[0] || null)}
+                onChange={(e) => setImg(e.target.files?.[0] || null)}
                 id="file-input"
                 hidden
               />

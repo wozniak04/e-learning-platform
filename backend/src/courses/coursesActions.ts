@@ -1,34 +1,18 @@
-import e, { Request, Response } from "express";
+import { Request, Response } from "express";
 import courseDB from "../operations_with_db/courses";
-import { get } from "http";
-
-const getAllCourseTypes = async (req: Request, res: Response) => {
-  try {
-    const result = await courseDB.getAllCourseTypes();
-    if (!result) {
-      return res.status(500).json({ message: "Failed to fetch course types" });
-    }
-    //console.log("Course types fetched:", result);
-    return res.status(200).json({ courseTypes: result });
-  } catch (error) {
-    console.error("Error fetching course types:", error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
+import { getUserIdFromRequest } from "../middleware/authenticatejwt";
 
 const getCourses = async (req: Request, res: Response) => {
   try {
-    const limit = parseInt(req.query.limit as string) || 12;
-    const page = parseInt(req.query.page as string) || 1;
-    const offset = (page - 1) * limit;
-
-    const { type, search, sort } = req.query;
+    const { type, search, sort, limit, offset } = req.query;
+    const userId = await getUserIdFromRequest(req);
     const result = await courseDB.getCourses(
+      userId,
       type as string | null,
       search as string | null,
       sort as string | null,
-      limit,
-      offset
+      parseInt(limit as string) || 12,
+      parseInt(offset as string) || 0
     );
     if (!result) {
       return res.status(500).json({ message: "Failed to fetch courses" });
@@ -310,7 +294,6 @@ const getCourseMaterial = async (req: Request, res: Response) => {
 };
 
 export default {
-  getAllCourseTypes,
   getCourses,
   getCoursesCount,
   getCourseDetailById,

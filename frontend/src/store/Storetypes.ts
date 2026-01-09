@@ -1,6 +1,6 @@
 export interface CourseInfo {
   title: string;
-  description?: string;
+  description: string;
   quick_description: string;
   owner_name: string;
   imgsrc?: string;
@@ -15,6 +15,7 @@ export interface CourseInfoStore {
     courseUrl: string,
     updatedInfo: Partial<CourseInfo>
   ) => void;
+  addNewCourseInfo: (courseUrl: string, info: CourseInfo) => void;
   getCourseInfoToCards: (page: number) => Promise<CourseCard[]>;
   getCourseInfoToDetail: (courseUrl: string) => Promise<CourseDetail | null>;
   clearStore: () => void;
@@ -32,19 +33,6 @@ export interface CourseDetail {
   owner_name: string;
   imgsrc?: string;
   type?: string;
-}
-export interface CourseDetailState {
-  currentCourseDetail: CourseDetail | null;
-  coursesDetail: { [url: string]: CourseDetail };
-  isLoading: boolean;
-  setCoursesDetail: (url: string, courseDetail: CourseDetail) => void;
-  setCurrentCourseDetail: (url: string, courseDetail: CourseDetail) => void;
-  replaceFirstCourseDetailWithNewCourseDetail: (
-    newUrl: string,
-    newCourseDetail: CourseDetail
-  ) => void;
-  fetchCoursesDetail: (url: string | undefined) => Promise<undefined>;
-  clearStore: () => void;
 }
 
 export interface savedCourse {
@@ -64,17 +52,7 @@ export interface savedCourseState {
   clearStore: () => void;
 }
 
-export interface Course_info {
-  title: string;
-  description: string;
-  quick_description: string;
-  type: string | null;
-  img: File | null;
-  password: string | null;
-}
-
 export interface CourseMaterial {
-  id: number;
   title: string;
   content: string;
   page: number;
@@ -82,11 +60,26 @@ export interface CourseMaterial {
 export interface CourseMaterialState {
   courseMaterials: { [url: string]: CourseMaterial[] };
   isLoading: boolean;
-  setCourseMaterials: (url: string, materials: CourseMaterial[]) => void;
-  fetchCourseMaterials: (courseUrl: string) => Promise<CourseMaterial[] | void>;
-  replaceFirstCourseMaterialWithNew: (
-    newUrl: string,
-    newCourseMaterial: CourseMaterial[]
-  ) => void;
+  setCourseMaterials: (
+    url: string,
+    materials: CourseMaterial[]
+  ) => Promise<void>;
+  fetchCourseMaterials: (courseUrl: string) => Promise<CourseMaterial[]>;
+  clearStore: () => void;
+}
+export interface CourseComments {
+  user: string;
+  comment: string;
+  date: string;
+  rate: number;
+}
+export interface CourseCommentsStore {
+  comments: {
+    [url: string]: { average_rating: number; comments: CourseComments[] };
+  };
+  isLoading: boolean;
+  setComments: (url: string, comments: CourseComments[]) => void;
+  fetchComments: (courseUrl: string) => Promise<CourseComments[] | void>;
+  addComment: (courseUrl: string, comment: CourseComments) => void;
   clearStore: () => void;
 }

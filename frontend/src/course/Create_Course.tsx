@@ -5,6 +5,8 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { BACKEND_URL } from "../variables";
+import { useCoursesInfoStore } from "../store/Courses/CourseInfoStore";
+import { useAuth } from "../auth/AuthContext";
 
 function Create_Course() {
   const navigate = useNavigate();
@@ -16,7 +18,10 @@ function Create_Course() {
   const [type, setType] = useState("");
   const [password, setPassword] = useState("");
   const [img, setImg] = useState<File | null>(null);
-
+  const addCourseToStore = useCoursesInfoStore(
+    (state) => state.addNewCourseInfo
+  );
+  const auth = useAuth();
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsCreating(true);
@@ -37,6 +42,14 @@ function Create_Course() {
       );
 
       toast.success("Kurs został zapisany pomyślnie!");
+      addCourseToStore(result.data.courseId, {
+        title,
+        quick_description: quickDescription,
+        description,
+        owner_name: auth.username,
+        type,
+        imgsrc: result.data.imgsrc,
+      });
       navigate(`/course/${result.data.courseId}/edit`);
     } catch (error: any) {
       toast.error(

@@ -1,5 +1,6 @@
 import pool from "../config/connectdb";
 import { nanoid } from "nanoid";
+import { CourseMaterial } from "../types";
 
 const getCourses = async (
   userId: number | null,
@@ -111,7 +112,7 @@ const createNewCourse = async (
   countFunction: number = 0
 ) => {
   const courseUrl = nanoid(10);
-  const query = `SELECT create_new_course($1,$2,$3,$4,$5,$6,$7,$8,$9);`;
+  const query = `SELECT create_new_course($1,$2,$3,$4,$5,$6,$7,$8);`;
   try {
     const result = await pool.query(query, [
       userId,
@@ -146,7 +147,7 @@ const get_course_owner_id = async (courseId: string) => {
   const query = `SELECT get_course_owner_id_by_url($1) AS owner_id;`;
   try {
     const result = await pool.query(query, [courseId]);
-    return result.rows[0].get_course_owner_by_url;
+    return result.rows[0].owner_id;
   } catch (error) {
     console.error("Error fetching course owner ID: ", error);
     return null;
@@ -188,14 +189,10 @@ const editCourseById = async (
     return null;
   }
 };
-const addCourseMaterial = async (
-  courseId: string,
-  title: string,
-  acapits: string[]
-) => {
-  const query = `SELECT add_course_material($1,$2,$3);`;
+const addCourseMaterial = async (materials: CourseMaterial[], url: string) => {
+  const query = `SELECT add_course_materials($1,$2);`;
   try {
-    await pool.query(query, [courseId, title, acapits]);
+    await pool.query(query, [url, JSON.stringify(materials)]);
     return true;
   } catch (error) {
     console.error("Error adding course material: ", error);
@@ -204,13 +201,12 @@ const addCourseMaterial = async (
 };
 const editCourseMaterial = async (
   courseId: string,
-  materialPage: string,
-  title: string | null = null,
-  content: string | null = null
+  materials: CourseMaterial[],
+  owner_id: number
 ) => {
-  const query = `SELECT edit_course_material($1,$2,$3,$4);`;
+  const query = `SELECT update_course_materials_by_url($1,$2,$3);`;
   try {
-    await pool.query(query, [courseId, materialPage, title, content]);
+    await pool.query(query, [courseId, owner_id, JSON.stringify(materials)]);
     return true;
   } catch (error) {
     console.error("Error editing course material: ", error);
@@ -234,9 +230,9 @@ const get_Course_material = async (
 ) => {
   const query = `
         SELECT * FROM get_all_course_pages($1)
-        WHERE (page_number >= COALESCE($2, -2147483648)) 
-          AND (page_number <= COALESCE($3, 2147483647))
-        ORDER BY page_number ASC;
+        WHERE (page >= COALESCE($2, -2147483648)) 
+          AND (page <= COALESCE($3, 2147483647))
+        ORDER BY page ASC;
     `;
   try {
     const result = await pool.query(query, [courseId, startPage, endPage]);

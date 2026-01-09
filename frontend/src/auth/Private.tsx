@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./AuthContext";
-import Spinner from "./Spinner";
+import Spinner from "../Spinner";
 
 function PrivateLayout() {
   const { isloading, isAuthenticated } = useAuth();

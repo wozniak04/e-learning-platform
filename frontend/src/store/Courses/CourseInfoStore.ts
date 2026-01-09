@@ -51,7 +51,7 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
         });
       }
       set({ isLoading: false });
-      return response.data;
+      return response.data.course[Object.keys(response.data.course)[0]];
     } catch (error) {
       console.error("Error fetching course info:", error);
       set({ isLoading: false });
@@ -93,6 +93,21 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
         },
       });
     }
+  },
+  addNewCourseInfo: (courseUrl, info) => {
+    if (Object.keys(get().coursesInfo).length < MAX_COURSE_INFO_STORE) {
+      set({
+        coursesInfo: { ...get().coursesInfo, [courseUrl]: info },
+      });
+    }
+    const updatedCoursesInfo = replaceFirstCourseInfoWithNewCourseInfo(
+      get().coursesInfo,
+      courseUrl,
+      info
+    );
+    set({
+      coursesInfo: updatedCoursesInfo,
+    });
   },
   getCourseInfoToCards: async (page: number) => {
     const coursesPerPage = 20;

@@ -1,0 +1,75 @@
+.course-material-editor {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: #f9fafb;
+}
+.pages-nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--border, #e6e9ee);
+}
+
+.page-tab {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  border: 1px solid var(--border, #e6e9ee);
+  background: #ffffff;
+  color: #64748b;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.page-tab:hover {
+  border-color: var(--accent, #06b6d4);
+  color: var(--accent, #06b6d4);
+}
+
+.page-tab.active {
+  background: var(--accent, #06b6d4);
+  color: white;
+  border-color: var(--accent, #06b6d4);
+  box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+}
+
+.add-tab-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  border: 2px dashed var(--border, #e6e9ee);
+  background: transparent;
+  color: #94a3b8;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.add-tab-btn:hover {
+  border-color: #10b981;
+  color: #10b981;
+  background: #ecfdf5;
+}
+
+.active-lesson-container {
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

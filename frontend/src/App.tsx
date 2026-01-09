@@ -10,6 +10,7 @@ import Create_Course from "./course/Create_Course";
 import NotFoundPage from "./Not_Found";
 import { ToastContainer } from "react-toastify";
 import EditCourse from "./course/EditCourse";
+import CourseMaterialEditor from "./course/materials/CourseMaterialEditor";
 import "react-toastify/dist/ReactToastify.css";
 function App() {
   return (
@@ -26,8 +27,8 @@ function App() {
             <Route path="/course/:id/edit" element={<EditCourse />} />
             <Route path="/course/create" element={<Create_Course />} />
             <Route
-              path="/course/create/materials"
-              element={<div>materialy</div>}
+              path="/course/:id/materials"
+              element={<CourseMaterialEditor />}
             />
             <Route path="/course/:id/learn/:page" element={<img src="#" />} />
           </Route>

@@ -5,7 +5,8 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { BACKEND_URL } from "../variables";
-
+import { useCoursesInfoStore } from "../store/Courses/CourseInfoStore";
+import Spinner from "../Spinner";
 function EditCourse() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -17,7 +18,13 @@ function EditCourse() {
   const [type, setType] = useState("");
   const [password, setPassword] = useState("");
   const [img, setImg] = useState<File | null>(null);
-
+  const updateCourseInfo = useCoursesInfoStore(
+    (state) => state.updateCourseInfo
+  );
+  const isLoading = useCoursesInfoStore((state) => state.isLoading);
+  const fetchCourseInfoByUrl = useCoursesInfoStore(
+    (state) => state.fetchCourseInfoByUrl
+  );
   const updatetitle = (val: string) => setTitle(val);
 
   const updatequick_description = (val: string) => setQuickDescription(val);
@@ -37,13 +44,20 @@ function EditCourse() {
       if (type) formData.append("type", type);
       if (password) formData.append("password", password);
       if (img) formData.append("img", img);
-      await axios.put(
+      const result = await axios.put(
         `${BACKEND_URL}/courses/${courseId}/edit`,
         {
           formData,
         },
         { withCredentials: true }
       );
+      updateCourseInfo(courseId, {
+        title,
+        quick_description: quickDescription,
+        description,
+        type,
+        imgsrc: result.data.imgsrc,
+      });
       toast.success("Kurs został edytowany pomyślnie!");
     } catch (error) {
       toast.error("Błąd podczas edytowania kursu");
@@ -53,9 +67,24 @@ function EditCourse() {
   };
 
   useEffect(() => {
-    if (id) {
-      console.log("Pobieranie danych dla kursu o ID:", id);
-    }
+    const loadCourseData = async () => {
+      try {
+        if (id) {
+          const info = await fetchCourseInfoByUrl(id);
+          console.log(info);
+          if (info) {
+            setTitle(info.title ?? "");
+            setQuickDescription(info.quick_description ?? "");
+            setDescription(info.description ?? "");
+            setType(info.type ?? "");
+          }
+        }
+      } catch (error) {
+        console.error("Błąd pobierania danych kursu:", error);
+      }
+    };
+
+    loadCourseData();
   }, [id]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -67,7 +96,9 @@ function EditCourse() {
       toast.error(error.message);
     }
   };
-
+  if (isLoading) {
+    return <Spinner />;
+  }
   return (
     <div className="Create_Course-container">
       <TopNav />

@@ -13,3 +13,8 @@ export interface login_result {
   login: string;
   email: string;
 }
+export interface CourseMaterial {
+  title: string;
+  content: string;
+  page: number;
+}

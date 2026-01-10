@@ -35,10 +35,10 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
     set({ isLoading: true });
     try {
       const response = await axios.get(`${BACKEND_URL}/courses/${courseUrl}`);
-      const courseInfo = response.data;
+      const courseInfo = response.data.course;
       if (Object.keys(get().coursesInfo).length < MAX_COURSE_INFO_STORE) {
         set({
-          coursesInfo: { ...get().coursesInfo, [courseUrl]: courseInfo },
+          coursesInfo: { ...get().coursesInfo, courseInfo },
         });
       } else {
         const updatedCoursesInfo = replaceFirstCourseInfoWithNewCourseInfo(
@@ -79,19 +79,27 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
         set({ isLoading: false });
       }
     } catch (error) {
-      console.error("Error fetching courses info:", error);
       set({ isLoading: false });
+      throw error;
     }
   },
-  updateCourseInfo: (courseUrl, updatedInfo) => {
+  updateCourseInfo: async (courseUrl, updatedInfo) => {
     const currentCourseInfo = get().coursesInfo[courseUrl];
-    if (currentCourseInfo) {
+    set({ isLoading: true });
+    try {
+      await axios.put(`${BACKEND_URL}/courses/${courseUrl}/edit`, updatedInfo, {
+        withCredentials: true,
+      });
       set({
         coursesInfo: {
           ...get().coursesInfo,
           [courseUrl]: { ...currentCourseInfo, ...updatedInfo },
         },
+        isLoading: false,
       });
+    } catch (error) {
+      set({ isLoading: false });
+      throw error;
     }
   },
   addNewCourseInfo: (courseUrl, info) => {
@@ -109,18 +117,34 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       coursesInfo: updatedCoursesInfo,
     });
   },
+  deleteCourse: async (url) => {
+    set({ isLoading: true });
+    try {
+      await axios.delete(`${BACKEND_URL}/courses/${url}`, {
+        withCredentials: true,
+      });
+
+      const currentCourses = get().coursesInfo;
+      const { [url]: _, ...rest } = currentCourses;
+
+      set({ coursesInfo: rest, isLoading: false });
+    } catch (error) {
+      set({ isLoading: false });
+      console.error("Error deleting course", error);
+      throw error;
+    }
+  },
   getCourseInfoToCards: async (page: number) => {
-    const coursesPerPage = 20;
+    const coursesPerPage = 10;
     const startIndex = (page - 1) * coursesPerPage;
     const endIndex = startIndex + coursesPerPage;
 
     let currentEntries = Object.entries(get().coursesInfo);
-
-    if (startIndex >= currentEntries.length) {
+    if (startIndex >= currentEntries.length - 1) {
       await get().fetchCoursesInfo(page);
       currentEntries = Object.entries(get().coursesInfo);
     }
-
+    console.log(currentEntries);
     return currentEntries
       .slice(startIndex, endIndex)
       .map(([url, info]: [string, CourseInfo]) => ({
@@ -141,7 +165,22 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       owner_name: courseInfo.owner_name,
       imgsrc: courseInfo.imgsrc || "default-placeholder.png",
       type: courseInfo.type || "default",
+      material_count: courseInfo.material_count,
+      created_at: courseInfo.created_at
+        ? new Date(courseInfo.created_at)
+        : null,
     };
+  },
+  changeMaterialCount: (url, pageLength) => {
+    set({
+      coursesInfo: {
+        ...get().coursesInfo,
+        [url]: {
+          ...get().coursesInfo[url],
+          material_count: pageLength,
+        },
+      },
+    });
   },
   clearStore: () => {
     set({ coursesInfo: {}, isLoading: false });

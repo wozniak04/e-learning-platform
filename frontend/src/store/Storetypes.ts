@@ -5,6 +5,8 @@ export interface CourseInfo {
   owner_name: string;
   imgsrc?: string;
   type?: string;
+  material_count: number;
+  created_at: Date | null;
 }
 export interface CourseInfoStore {
   coursesInfo: { [url: string]: CourseInfo };
@@ -14,10 +16,12 @@ export interface CourseInfoStore {
   updateCourseInfo: (
     courseUrl: string,
     updatedInfo: Partial<CourseInfo>
-  ) => void;
+  ) => Promise<void>;
   addNewCourseInfo: (courseUrl: string, info: CourseInfo) => void;
+  deleteCourse: (courseUrl: string) => Promise<void>;
   getCourseInfoToCards: (page: number) => Promise<CourseCard[]>;
   getCourseInfoToDetail: (courseUrl: string) => Promise<CourseDetail | null>;
+  changeMaterialCount: (courseUrl: string, pageLength: number) => void;
   clearStore: () => void;
 }
 export interface CourseCard {
@@ -33,6 +37,8 @@ export interface CourseDetail {
   owner_name: string;
   imgsrc?: string;
   type?: string;
+  material_count: number;
+  created_at: Date | null;
 }
 
 export interface savedCourse {

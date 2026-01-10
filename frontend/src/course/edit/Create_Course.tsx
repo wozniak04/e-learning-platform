@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import TopNav from "../mainPage/topnav/TopNav";
-import "./styles/create_Course.css";
+import TopNav from "../../mainPage/topnav/TopNav";
+import "../styles/create_Course.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";
-import { BACKEND_URL } from "../variables";
-import { useCoursesInfoStore } from "../store/Courses/CourseInfoStore";
-import { useAuth } from "../auth/AuthContext";
+import { BACKEND_URL } from "../../variables";
+import { useCoursesInfoStore } from "../../store/Courses/CourseInfoStore";
+import { useAuth } from "../../auth/AuthContext";
 
 function Create_Course() {
   const navigate = useNavigate();
@@ -49,6 +49,8 @@ function Create_Course() {
         owner_name: auth.username,
         type,
         imgsrc: result.data.imgsrc,
+        material_count: 0,
+        created_at: null,
       });
       navigate(`/course/${result.data.courseId}/edit`);
     } catch (error: any) {

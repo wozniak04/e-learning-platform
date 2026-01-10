@@ -19,6 +19,7 @@ function Courses() {
         const data = await getCourseInfoToCards(page);
         setCourses(data);
       } catch (error) {
+        console.error(error);
         toast.error("Błąd podczas ładowania kursów");
       }
     };

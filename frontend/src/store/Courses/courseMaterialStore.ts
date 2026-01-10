@@ -2,6 +2,8 @@ import axios from "axios";
 import { BACKEND_URL } from "../../variables";
 import { create } from "zustand";
 import type { CourseMaterialState, CourseMaterial } from "../Storetypes";
+import { useCoursesInfoStore } from "./CourseInfoStore";
+
 const replaceFirstCourseMaterialWithNew = (
   CourseMaterials: { [url: string]: CourseMaterial[] },
   newUrl: string,
@@ -19,34 +21,39 @@ export const useCourseMaterialStore = create<CourseMaterialState>(
     courseMaterials: {},
     isLoading: false,
     setCourseMaterials: async (url, materials) => {
-      console.log(get().courseMaterials);
+      const allFieldsFilled = materials.every(
+        (m) => m.title.trim() !== "" && m.content.trim() !== ""
+      );
+      if (!allFieldsFilled) {
+        throw new Error("Wszystkie tytuły i treści muszą być uzupełnione");
+      }
+
       try {
-        if (get().courseMaterials[url].length > 0) {
-          console.log(materials);
-          await axios.put(
-            `${BACKEND_URL}/courses/${url}/material/edit`,
-            { materials: materials },
-            {
-              withCredentials: true,
-            }
-          );
-        } else {
-          await axios.post(
-            `${BACKEND_URL}/courses/${url}/material`,
-            { materials: materials },
-            {
-              withCredentials: true,
-            }
-          );
-        }
+        const isExisting =
+          get().courseMaterials[url] && get().courseMaterials[url].length > 0;
+        const endpoint = isExisting
+          ? `${BACKEND_URL}/courses/${url}/material/edit`
+          : `${BACKEND_URL}/courses/${url}/material`;
+
+        await axios({
+          method: isExisting ? "put" : "post",
+          url: endpoint,
+          data: { materials },
+          withCredentials: true,
+        });
 
         set({
           courseMaterials: { ...get().courseMaterials, [url]: materials },
         });
+
+        useCoursesInfoStore
+          .getState()
+          .changeMaterialCount(url, materials.length);
       } catch (error) {
-        throw new Error("Error setting course materials:", { cause: error });
+        throw new Error("Error in setting course materials:", { cause: error });
       }
     },
+
     fetchCourseMaterials: async (courseUrl) => {
       if (get().courseMaterials[courseUrl]) {
         return get().courseMaterials[courseUrl];
@@ -57,7 +64,6 @@ export const useCourseMaterialStore = create<CourseMaterialState>(
           `${BACKEND_URL}/courses/${courseUrl}/material`,
           { withCredentials: true }
         );
-        console.log(response.data);
         if (Object.keys(get().courseMaterials).length < 10) {
           set({
             courseMaterials: {

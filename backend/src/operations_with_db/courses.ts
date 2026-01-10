@@ -54,8 +54,8 @@ const getCourseById = async (courseId: string) => {
       return null;
     }
     return result.rows.reduce((acc, course) => {
-      const { url, ...rest } = course; // Destrukturyzacja: wyciągamy url, reszta trafia do 'rest'
-      acc[url] = rest; // Przypisujemy do obiektu pod kluczem url
+      const { url, ...rest } = course;
+      acc[url] = rest;
       return acc;
     }, {});
   } catch (error) {
@@ -189,7 +189,20 @@ const editCourseById = async (
     return null;
   }
 };
-const addCourseMaterial = async (materials: CourseMaterial[], url: string) => {
+const publishCourse = async (course_id: string) => {
+  const query = "SELECT publish_course($1)";
+  try {
+    await pool.query(query, [course_id]);
+    return true;
+  } catch (error) {
+    console.error("error while publishing course", error);
+    return false;
+  }
+};
+const addCourseMaterial = async (
+  materials: CourseMaterial[],
+  url: string
+): Promise<boolean> => {
   const query = `SELECT add_course_materials($1,$2);`;
   try {
     await pool.query(query, [url, JSON.stringify(materials)]);
@@ -203,13 +216,27 @@ const editCourseMaterial = async (
   courseId: string,
   materials: CourseMaterial[],
   owner_id: number
-) => {
+): Promise<boolean> => {
   const query = `SELECT update_course_materials_by_url($1,$2,$3);`;
   try {
     await pool.query(query, [courseId, owner_id, JSON.stringify(materials)]);
     return true;
   } catch (error) {
     console.error("Error editing course material: ", error);
+    return false;
+  }
+};
+
+const deleteCoursePage = async (
+  courseId: string,
+  page: number
+): Promise<boolean> => {
+  const query = "SELECT delete_course_material_page($1, $2)";
+  try {
+    await pool.query(query, [courseId, page]);
+    return true;
+  } catch (error) {
+    console.error("Error while deleting a Course Material Page", error);
     return false;
   }
 };
@@ -254,8 +281,10 @@ export default {
   get_course_owner_id,
   deleteCourseById,
   editCourseById,
+  publishCourse,
   addCourseMaterial,
   editCourseMaterial,
   getCourseMaterialsCount,
   get_Course_material,
+  deleteCoursePage,
 };

@@ -40,7 +40,7 @@ const getCoursesCount = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-const getCourseDetailById = async (req: Request, res: Response) => {
+const getCourseById = async (req: Request, res: Response) => {
   try {
     const courseId = req.params.id;
     const result = await courseDB.getCourseById(courseId);
@@ -136,9 +136,11 @@ const createNewCourse = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
-const deleteCourseById = async (req: Request, res: Response) => {
+
+const publishCourse = async (req: Request, res: Response) => {
   const courseId = req.params.id;
   const userId = req.user.sub;
+
   if (!courseId || !userId) {
     return res.status(400).json({ message: "bad request" });
   }
@@ -147,17 +149,17 @@ const deleteCourseById = async (req: Request, res: Response) => {
     if (ownerId !== userId) {
       return res.status(403).json({ message: "forbidden" });
     }
-    const result = await courseDB.deleteCourseById(courseId);
+    const result = await courseDB.publishCourse(courseId);
     if (!result) {
-      return res.status(500).json({ message: "Failed to delete course" });
+      return res.status(500).json({ message: "error while publishing course" });
     }
-
-    return res.status(200).json({ message: "Course deleted successfully" });
+    return res.status(200);
   } catch (error) {
-    console.error("Error deleting course by ID:", error);
-    return res.status(500).json({ message: "Internal server error" });
+    console.error("error during publishin course: ", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
 const editCourseById = async (req: Request, res: Response) => {
   const courseId = req.params.id;
   const userId = req.user.sub;
@@ -197,6 +199,30 @@ const editCourseById = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+const deleteCourseById = async (req: Request, res: Response) => {
+  const courseId = req.params.id;
+  const userId = req.user.sub;
+  if (!courseId || !userId) {
+    return res.status(400).json({ message: "bad request" });
+  }
+  try {
+    const ownerId = await courseDB.get_course_owner_id(courseId);
+    if (ownerId !== userId) {
+      return res.status(403).json({ message: "forbidden" });
+    }
+    const result = await courseDB.deleteCourseById(courseId);
+    if (!result) {
+      return res.status(500).json({ message: "Failed to delete course" });
+    }
+
+    return res.status(200).json({ message: "Course deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting course by ID:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
 const addCourseMaterial = async (req: Request, res: Response) => {
   const courseId = req.params.id;
   const userId = req.user.sub;
@@ -221,6 +247,7 @@ const addCourseMaterial = async (req: Request, res: Response) => {
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 const editCourseMaterial = async (req: Request, res: Response) => {
   const courseId = req.params.id;
   const userId = req.user.sub;
@@ -246,6 +273,33 @@ const editCourseMaterial = async (req: Request, res: Response) => {
     return res
       .status(200)
       .json({ message: "Course material edited successfully" });
+  } catch (error) {
+    console.error("Error fetching course owner ID:", error);
+    return res.status(500).json({ message: "Internal server error" });
+  }
+};
+
+const deleteCourseMaterial = async (req: Request, res: Response) => {
+  const courseId = req.params.id;
+  const userId = req.user.sub;
+  const page = req.params.page;
+  if (!courseId || !userId || !page) {
+    res.status(400).json({ message: "bad request" });
+  }
+  try {
+    const ownerId = await courseDB.get_course_owner_id(courseId);
+    if (ownerId !== userId) {
+      return res.status(403).json({ message: "forbidden" });
+    }
+    const result = await courseDB.deleteCoursePage(courseId, parseInt(page));
+    if (!result) {
+      return res
+        .status(500)
+        .json({ message: "Failed to edit course material" });
+    }
+    return res
+      .status(200)
+      .json({ message: "Course material deleted successfully" });
   } catch (error) {
     console.error("Error fetching course owner ID:", error);
     return res.status(500).json({ message: "Internal server error" });
@@ -299,7 +353,7 @@ const getCourseMaterial = async (req: Request, res: Response) => {
 export default {
   getCourses,
   getCoursesCount,
-  getCourseDetailById,
+  getCourseById,
   signupToCourse,
   getSavedCoursesByUserid,
   unsingCourse,
@@ -310,4 +364,6 @@ export default {
   editCourseMaterial,
   getCourseMaterialsCount,
   getCourseMaterial,
+  deleteCourseMaterial,
+  publishCourse,
 };

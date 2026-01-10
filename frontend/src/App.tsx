@@ -4,13 +4,14 @@ import MainPage from "./mainPage/mainpage";
 import { AuthProvider } from "./auth/AuthContext";
 import PrivateLayout from "./auth/Private";
 import RegisterPage from "./login/RegisterPage";
-import Course from "./course/CourseDetail";
+import CourseDetail from "./course/CourseDetail";
 import PathTracker from "./PathTracker";
-import Create_Course from "./course/Create_Course";
+import Create_Course from "./course/edit/Create_Course";
 import NotFoundPage from "./Not_Found";
 import { ToastContainer } from "react-toastify";
-import EditCourse from "./course/EditCourse";
+import EditCourse from "./course/edit/EditCourse";
 import CourseMaterialEditor from "./course/materials/CourseMaterialEditor";
+import Learn from "./course/Learn";
 import "react-toastify/dist/ReactToastify.css";
 function App() {
   return (
@@ -23,14 +24,14 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/main" element={<MainPage />} />
           <Route element={<PrivateLayout />}>
-            <Route path="/course/:id" element={<Course />} />
+            <Route path="/course/:id" element={<CourseDetail />} />
             <Route path="/course/:id/edit" element={<EditCourse />} />
             <Route path="/course/create" element={<Create_Course />} />
             <Route
               path="/course/:id/materials"
               element={<CourseMaterialEditor />}
             />
-            <Route path="/course/:id/learn/:page" element={<img src="#" />} />
+            <Route path="/course/:id/learn" element={<Learn />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

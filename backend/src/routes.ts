@@ -47,7 +47,7 @@ router.get("/me", authenticateJWT, (req: Request, res: Response) => {
 router.get("/courses", whoisthis, courses.getCourses);
 router.get("/courses/count", whoisthis, courses.getCoursesCount);
 router.get("/courses/saved", authenticateJWT, courses.getSavedCoursesByUserid);
-router.get("/courses/:id", whoisthis, courses.getCourseDetailById);
+router.get("/courses/:id", whoisthis, courses.getCourseById);
 router.post(
   "/courses/:id/sign",
   whoisthis,
@@ -67,8 +67,14 @@ router.post(
   upload.single("img"),
   courses.createNewCourse
 );
+router.post(
+  "/courses/:id/publish",
+  whoisthis,
+  authenticateJWT,
+  courses.publishCourse
+);
 router.delete(
-  "/courses/:id/delete",
+  "/courses/:id",
   whoisthis,
   authenticateJWT,
   courses.deleteCourseById
@@ -91,6 +97,12 @@ router.put(
   whoisthis,
   authenticateJWT,
   courses.editCourseMaterial
+);
+router.delete(
+  "/courses/:id/material/:page",
+  whoisthis,
+  authenticateJWT,
+  courses.deleteCourseMaterial
 );
 router.get(
   "/courses/:id/material/count",

@@ -7,9 +7,11 @@ import "./styles/courseDetail.css";
 import { toast } from "react-toastify";
 import type { CourseDetail } from "../store/Storetypes";
 import NotFoundPage from "../Not_Found";
+import { useAuth } from "../auth/AuthContext";
 
-function Course() {
+function CourseDetails() {
   const navigate = useNavigate();
+  const auth = useAuth();
   const { id } = useParams<{ id: string }>();
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [Page, setPage] = useState<Number | null>(null);
@@ -88,6 +90,15 @@ function Course() {
     <div id="box">
       <TopNav />
       <div className="course-container">
+        {auth.username === courseDetail.owner_name && (
+          <button
+            className="edit-course-button"
+            onClick={() => navigate(`/course/${id}/edit`)}
+          >
+            Edytuj kurs
+          </button>
+        )}
+
         <header className="course-header">
           <div className="course-image">
             <img
@@ -96,6 +107,7 @@ function Course() {
                   ? courseDetail.imgsrc
                   : "https://www.e-learning.pl/wp-content/uploads/2023/06/elpl.jpg"
               }
+              alt="Course"
             />
           </div>
 
@@ -103,9 +115,21 @@ function Course() {
             <h1>{courseDetail.title}</h1>
             <p className="owner">Prowadzący: {courseDetail.owner_name}</p>
             <div className="stats">
-              {/* <span>Ocena: {courseDetail.average_rating} / 10</span>
-              <span>Opinie: ({courseDetail.reviews_count})</span>
-              <span>Materiały: {courseDetail.material_count}</span> */}
+              <span>Materiały: {courseDetail.material_count}</span>
+              {courseDetail.created_at && (
+                <span>
+                  Stworzono:{" "}
+                  {courseDetail.created_at
+                    .toLocaleString("pl-PL", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
+                    .replace(",", "")}
+                </span>
+              )}
             </div>
 
             {!isSaved ? (
@@ -113,17 +137,17 @@ function Course() {
                 Zapisz się na kurs
               </button>
             ) : (
-              <>
+              <div style={{ display: "flex", gap: "10px" }}>
                 <button className="enroll-btn" onClick={handleUnSign}>
                   wypisz sie z kursu
                 </button>
                 <button
                   className="enroll-btn"
-                  onClick={() => navigate(`/course/${id}/learn/${Page}`)}
+                  onClick={() => navigate(`/course/${id}/learn`)}
                 >
                   przejdź do kursu
                 </button>
-              </>
+              </div>
             )}
           </div>
         </header>
@@ -131,7 +155,9 @@ function Course() {
         <section className="course-description">
           <h2>O kursie</h2>
           <p>{courseDetail.description}</p>
-          {courseDetail.type && <p>Typ kursu: {courseDetail.type}</p>}
+          {courseDetail.type && (
+            <p style={{ marginTop: "10px" }}>Typ kursu: {courseDetail.type}</p>
+          )}
         </section>
 
         <hr />
@@ -146,4 +172,4 @@ function Course() {
     </div>
   );
 }
-export default Course;
+export default CourseDetails;

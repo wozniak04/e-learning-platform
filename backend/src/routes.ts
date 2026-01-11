@@ -116,5 +116,24 @@ router.get(
   authenticateJWT,
   courses.getCourseMaterial
 );
+router.get("/courses/:id/comments", whoisthis, courses.getCourseComments);
+router.post(
+  "/courses/:id/comments",
+  whoisthis,
+  authenticateJWT,
+  courses.addCourseReview
+);
+router.put(
+  "/courses/:id/comments/edit",
+  whoisthis,
+  authenticateJWT,
+  courses.editCourseReview
+);
+router.delete(
+  "/courses/:id/comments",
+  whoisthis,
+  authenticateJWT,
+  courses.deleteCourseReview
+);
 
 export default router;

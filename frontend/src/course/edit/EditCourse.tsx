@@ -3,16 +3,16 @@ import TopNav from "../../mainPage/topnav/TopNav";
 import "../styles/create_Course.css";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
-import axios from "axios";
-import { BACKEND_URL } from "../../variables";
 import { useCoursesInfoStore } from "../../store/Courses/CourseInfoStore";
 import Spinner from "../../Spinner";
 import type { CourseInfo } from "../../store/Storetypes";
 import DeleteCourseModal from "./DeleteCourseModal";
+import { useCourseMaterialStore } from "../../store/Courses/courseMaterialStore";
 
 function EditCourse() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const [materiallength, setmateriallength] = useState(0);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [ispublished, setispublished] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
@@ -29,7 +29,11 @@ function EditCourse() {
   const fetchCourseInfoByUrl = useCoursesInfoStore(
     (state) => state.fetchCourseInfoByUrl
   );
+  const fetchCourseMaterials = useCourseMaterialStore(
+    (state) => state.fetchCourseMaterials
+  );
   const deleteCourse = useCoursesInfoStore((state) => state.deleteCourse);
+  const publishCourse = useCoursesInfoStore((state) => state.publishCourse);
   const updatetitle = (val: string) => setTitle(val);
 
   const updatequick_description = (val: string) => setQuickDescription(val);
@@ -50,7 +54,6 @@ function EditCourse() {
       if (password) formData.append("password", password);
       if (img) formData.append("img", img);
       updateCourseInfo(id!, formData as Partial<CourseInfo>);
-      toast.success("Kurs został edytowany pomyślnie!");
     } catch (error) {
       toast.error("Błąd podczas edytowania kursu");
     } finally {
@@ -63,12 +66,16 @@ function EditCourse() {
       try {
         if (id) {
           const info = await fetchCourseInfoByUrl(id);
+          const material = await fetchCourseMaterials(id);
           if (info) {
             setTitle(info.title ?? "");
             setQuickDescription(info.quick_description ?? "");
             setDescription(info.description ?? "");
             setType(info.type ?? "");
             setispublished(info.created_at !== null);
+          }
+          if (material) {
+            setmateriallength(material.length);
           }
         }
       } catch (error) {
@@ -89,22 +96,16 @@ function EditCourse() {
     }
   };
   const handlePublish = async () => {
+    if (materiallength <= 0) {
+      toast.info("musisz dodać jakieś materiały aby opublikować kurs");
+      return;
+    }
     try {
-      const response = await axios.post(
-        `${BACKEND_URL}/courses/${id}/publish`,
-        {},
-        { withCredentials: true }
-      );
-
-      response.status === 200;
-      toast.success("Opublikowano kurs!");
-
-      setispublished(true);
-
-      setTimeout(() => navigate("/main"), 1500);
+      await publishCourse(id!);
+      navigate("/main");
     } catch (error) {
-      toast.error("Nie udało się opublikować kursu");
-      console.error("Błąd podczas publikowania: ", error);
+      console.error(error);
+      toast.error(error as string);
     }
   };
   const handleDeleteClick = async () => {
@@ -126,6 +127,9 @@ function EditCourse() {
       <TopNav />
       <div className="form-wrapper">
         <h1>Edytuj kurs</h1>
+        <Link to={`/course/${id}`} className="back-link">
+          ← Powrót do szczegółów
+        </Link>
         <form className="create-form" onSubmit={handleSubmit}>
           <div className="input-group">
             <label>Tytuł kursu*</label>
@@ -213,9 +217,16 @@ function EditCourse() {
             {isCreating ? "Trwa przesyłanie..." : "zapisz zmiany"}
           </button>
         </form>
-        <button hidden={ispublished} onClick={handlePublish}>
-          opublikuj kurs
-        </button>
+        {!ispublished && (
+          <button
+            type="button"
+            className="submit-btn"
+            style={{ backgroundColor: "#22c55e", marginTop: "10px" }}
+            onClick={handlePublish}
+          >
+            Opublikuj kurs
+          </button>
+        )}
         <div className="danger-zone">
           <button
             type="button"

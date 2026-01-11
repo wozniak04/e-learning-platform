@@ -11,7 +11,7 @@ import NotFoundPage from "./Not_Found";
 import { ToastContainer } from "react-toastify";
 import EditCourse from "./course/edit/EditCourse";
 import CourseMaterialEditor from "./course/materials/CourseMaterialEditor";
-import Learn from "./course/Learn";
+import Learn from "./course/materials/Learn";
 import "react-toastify/dist/ReactToastify.css";
 function App() {
   return (

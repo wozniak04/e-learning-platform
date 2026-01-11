@@ -50,7 +50,7 @@ export const addGoogleUser = async (
       email,
       google_id,
     ]);
-    //console.log("addGoogleUser:", res.rows);
+
     if (res.rows.length === 0 || res.rows[0].id === null) return null;
     return res.rows[0];
   } catch (err) {

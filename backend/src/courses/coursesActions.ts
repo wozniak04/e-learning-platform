@@ -86,9 +86,7 @@ const unsingCourse = async (req: Request, res: Response) => {
 };
 const getSavedCoursesByUserid = async (req: Request, res: Response) => {
   try {
-    console.log("dupa");
     const userId = req.user.sub;
-    console.log(userId);
     if (!userId) return res.status(400).json({ message: "bad request" });
     const result = await courseDB.getSavedCourses(userId);
     if (!result) return res.status(404);
@@ -151,9 +149,11 @@ const publishCourse = async (req: Request, res: Response) => {
     }
     const result = await courseDB.publishCourse(courseId);
     if (!result) {
-      return res.status(500).json({ message: "error while publishing course" });
+      return res
+        .status(500)
+        .json({ message: "error while publishing course", created_at: result });
     }
-    return res.status(200);
+    return res.status(200).json({ message: "succes" });
   } catch (error) {
     console.error("error during publishin course: ", error);
     res.status(500).json({ message: "Internal server error" });
@@ -350,6 +350,101 @@ const getCourseMaterial = async (req: Request, res: Response) => {
   }
 };
 
+const getCourseComments = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { search = null, sort = null, limit = null, offset = null } = req.query;
+  try {
+    const result = await courseDB.getCourseComments(
+      id,
+      search as string,
+      sort as string,
+      limit as string,
+      offset as string
+    );
+    if (!result) {
+      return res.status(404).json({ message: "no Course Found with this id" });
+    }
+    return res.status(200).json({ comments: result });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: error });
+  }
+};
+
+const addCourseReview = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user_id = req.user.sub;
+  const { rating, comment } = req.body;
+
+  if (rating === undefined || !comment) {
+    return res.status(400).json({ message: "bad request" });
+  }
+
+  const result = await courseDB.addCourseComment(id, user_id, rating, comment);
+
+  if (result === -404)
+    return res.status(404).json({ message: "course not found" });
+  if (result === -400)
+    return res.status(400).json({ message: "rating must be 1-10" });
+  if (result < 0) return res.status(500).json({ message: "server error" });
+
+  return res.status(200).json({
+    message: "success",
+    newAverage: result,
+  });
+};
+const editCourseReview = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user_id = req.user.sub;
+  const { rating, comment } = req.body;
+
+  if (!rating || !comment) {
+    return res
+      .status(400)
+      .json({ message: "bad request: rating and comment are required" });
+  }
+
+  const result = await courseDB.editCourseComment(id, user_id, rating, comment);
+
+  if (result === 404)
+    return res.status(404).json({ message: "course or review not found" });
+
+  if (result === 403)
+    return res
+      .status(403)
+      .json({ message: "you can only edit your own reviews" });
+
+  if (result === 400)
+    return res.status(400).json({ message: "rating must be between 1 and 10" });
+
+  if (result === 200)
+    return res.status(200).json({ message: "success: review updated" });
+
+  return res.status(500).json({ message: "server error" });
+};
+const deleteCourseReview = async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const user_id = req.user.sub;
+
+  const result = await courseDB.deleteCourseComment(id, user_id);
+
+  if (result === 404) {
+    return res.status(404).json({ message: "course not found" });
+  }
+
+  if (result === 403) {
+    return res
+      .status(403)
+      .json({ message: "review not found or unauthorized" });
+  }
+
+  if (result === 200) {
+    return res.status(200).json({ message: "success: review deleted" });
+  }
+
+  return res.status(500).json({ message: "server error" });
+};
+
 export default {
   getCourses,
   getCoursesCount,
@@ -366,4 +461,8 @@ export default {
   getCourseMaterial,
   deleteCourseMaterial,
   publishCourse,
+  getCourseComments,
+  addCourseReview,
+  editCourseReview,
+  deleteCourseReview,
 };

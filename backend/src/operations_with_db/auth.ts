@@ -7,7 +7,6 @@ import {
   addGoogleUser,
   getUserByEmail,
   linkGoogleIdToExistingUser,
-  marklogin,
 } from "../operations_with_db/users";
 import type {
   login_with_google,
@@ -125,10 +124,8 @@ const login_with_google = async (
     const existingUser = await getUserByGoogleId(google_id);
 
     if (existingUser) {
-      console.log("uzytkonik istnieje");
       user = existingUser;
     } else {
-      console.log("tworze nowego uzytkonika google");
       const existingEmailUser = await getUserByEmail(email);
 
       if (existingEmailUser) {

@@ -8,13 +8,13 @@ import { toast } from "react-toastify";
 import type { CourseDetail } from "../store/Storetypes";
 import NotFoundPage from "../Not_Found";
 import { useAuth } from "../auth/AuthContext";
+import CourseComments from "./CourseComments";
 
 function CourseDetails() {
   const navigate = useNavigate();
   const auth = useAuth();
   const { id } = useParams<{ id: string }>();
   const [isSaved, setIsSaved] = useState<boolean>(false);
-  const [Page, setPage] = useState<Number | null>(null);
   const [courseDetail, setCourseDetail] = useState<CourseDetail | null>(null);
   const signuptoCourse = useSavedCoursesStore(
     (state) => state.addToSavedCourses
@@ -25,9 +25,6 @@ function CourseDetails() {
   const fetchsavedCourses = useSavedCoursesStore(
     (state) => state.fetchsavedCourses
   );
-  const getPageOfSavedCourse = useSavedCoursesStore(
-    (state) => state.getPageOfSavedCourse
-  );
   const getCourseDetail = useCoursesInfoStore(
     (state) => state.getCourseInfoToDetail
   );
@@ -37,7 +34,6 @@ function CourseDetails() {
     try {
       fetchsavedCourses().then((res) => {
         setIsSaved(res.some((course) => course.url === id));
-        setPage(getPageOfSavedCourse(id!)!);
       });
       getCourseDetail(id!).then((data) => {
         if (data) {
@@ -60,13 +56,11 @@ function CourseDetails() {
       .then(() => {
         toast.success("zapisano sie na kurs!");
         setIsSaved(true);
-        setPage(1);
       })
       .catch((error) => {
         if (error.message === "you are already signed up to this course") {
           setIsSaved(true);
           toast.info("Jesteś już zapisany na ten kurs");
-          setPage(getPageOfSavedCourse(id!)!);
           return;
         }
         setIsSaved(false);
@@ -77,7 +71,6 @@ function CourseDetails() {
     unsigntoCourse(id!)
       .then(() => {
         setIsSaved(false);
-        setPage(null);
         toast.success("wypisano sie z kursu!");
       })
       .catch((error) => {
@@ -162,12 +155,7 @@ function CourseDetails() {
 
         <hr />
 
-        <section className="course-comments">
-          <h2>Sekcja komentarzy</h2>
-          <div className="comment-placeholder">
-            <p>Tu pojawią się opinie użytkowników...</p>
-          </div>
-        </section>
+        <CourseComments courseUrl={id!} />
       </div>
     </div>
   );

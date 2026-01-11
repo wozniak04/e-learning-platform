@@ -22,6 +22,7 @@ export interface CourseInfoStore {
   getCourseInfoToCards: (page: number) => Promise<CourseCard[]>;
   getCourseInfoToDetail: (courseUrl: string) => Promise<CourseDetail | null>;
   changeMaterialCount: (courseUrl: string, pageLength: number) => void;
+  publishCourse: (courseUrl: string) => Promise<void>;
   clearStore: () => void;
 }
 export interface CourseCard {
@@ -74,18 +75,22 @@ export interface CourseMaterialState {
   clearStore: () => void;
 }
 export interface CourseComments {
-  user: string;
+  user_avatar: string;
+  user_name: string;
   comment: string;
-  date: string;
-  rate: number;
+  created_at: string;
+  review_rating: number;
+}
+export interface LocalCommentsState {
+  average_rating: number;
+  comments: CourseComments[];
 }
 export interface CourseCommentsStore {
   comments: {
-    [url: string]: { average_rating: number; comments: CourseComments[] };
+    [url: string]: { average_rating: number; comment: CourseComments[] };
   };
   isLoading: boolean;
-  setComments: (url: string, comments: CourseComments[]) => void;
-  fetchComments: (courseUrl: string) => Promise<CourseComments[] | void>;
+  fetchComments: (courseUrl: string) => Promise<LocalCommentsState | void>;
   addComment: (courseUrl: string, comment: CourseComments) => void;
   clearStore: () => void;
 }

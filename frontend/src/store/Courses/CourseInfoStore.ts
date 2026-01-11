@@ -36,6 +36,7 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
     try {
       const response = await axios.get(`${BACKEND_URL}/courses/${courseUrl}`);
       const courseInfo = response.data.course;
+      console.log(courseInfo);
       if (Object.keys(get().coursesInfo).length < MAX_COURSE_INFO_STORE) {
         set({
           coursesInfo: { ...get().coursesInfo, courseInfo },
@@ -123,11 +124,16 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       await axios.delete(`${BACKEND_URL}/courses/${url}`, {
         withCredentials: true,
       });
+      if (Object.keys(get().coursesInfo).length <= 1) {
+        set({ coursesInfo: {}, isLoading: false });
+        return;
+      }
+      const { [url]: _, ...remainingCourses } = get().coursesInfo;
 
-      const currentCourses = get().coursesInfo;
-      const { [url]: _, ...rest } = currentCourses;
-
-      set({ coursesInfo: rest, isLoading: false });
+      set({
+        coursesInfo: remainingCourses,
+        isLoading: false,
+      });
     } catch (error) {
       set({ isLoading: false });
       console.error("Error deleting course", error);
@@ -144,7 +150,6 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       await get().fetchCoursesInfo(page);
       currentEntries = Object.entries(get().coursesInfo);
     }
-    console.log(currentEntries);
     return currentEntries
       .slice(startIndex, endIndex)
       .map(([url, info]: [string, CourseInfo]) => ({
@@ -181,6 +186,28 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
         },
       },
     });
+  },
+  publishCourse: async (url) => {
+    try {
+      const response = await axios.post(
+        `${BACKEND_URL}/courses/${url}/publish`,
+        {},
+        { withCredentials: true }
+      );
+
+      set({
+        coursesInfo: {
+          ...get().coursesInfo,
+          [url]: {
+            ...get().coursesInfo[url],
+            created_at: response.data.created_at,
+          },
+        },
+      });
+    } catch (error) {
+      console.error("Błąd podczas publikowania: ", error);
+      throw Error("Błąd podczas publikowania");
+    }
   },
   clearStore: () => {
     set({ coursesInfo: {}, isLoading: false });

@@ -1,0 +1,121 @@
+.comments-display-container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 100%;
+}
+
+.comments-display-container h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #0f172a;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comment-card {
+  background: #ffffff;
+  border: 1px solid var(--border, #e2e8f0);
+  border-radius: 10px;
+  padding: 16px;
+  transition: box-shadow 0.2s ease;
+  display: flex;
+  gap: 24px;
+}
+
+.comment-card:hover {
+  box-shadow: var(--shadow, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+}
+
+.comment-side-info {
+  flex: 0 0 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 8px;
+  border-right: 1px solid #eee;
+  padding-right: 16px;
+}
+
+.comment-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #f3f4f6;
+  border: 1px solid var(--border, #e2e8f0);
+}
+
+.comment-user-details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.comment-user-details strong {
+  font-size: 0.9rem;
+  color: #0f172a;
+  word-break: break-word;
+}
+
+.comment-user-details small {
+  color: var(--muted, #64748b);
+  font-size: 0.75rem;
+}
+
+.comment-main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comment-rating {
+  display: inline-block;
+  align-self: flex-start;
+  background: rgba(6, 182, 212, 0.08);
+  color: var(--accent, #0891b2);
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.comment-card p {
+  margin: 0;
+  color: #334155;
+  line-height: 1.5;
+  font-size: 0.95rem;
+}
+
+@media (max-width: 600px) {
+  .comment-card {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .comment-side-info {
+    flex: none;
+    flex-direction: row;
+    align-items: center;
+    text-align: left;
+    border-right: none;
+    border-bottom: 1px solid #eee;
+    padding-right: 0;
+    padding-bottom: 12px;
+    width: 100%;
+  }
+
+  .comment-avatar {
+    width: 36px;
+    height: 36px;
+  }
+}

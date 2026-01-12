@@ -1,3 +1,9 @@
+export interface FetchCourseInfoParams {
+  search?: string;
+  type?: string;
+  sort?: string;
+  onlysaved?: boolean;
+}
 export interface CourseInfo {
   title: string;
   description: string;
@@ -10,8 +16,9 @@ export interface CourseInfo {
 }
 export interface CourseInfoStore {
   coursesInfo: { [url: string]: CourseInfo };
+  totalCount: number;
   isLoading: boolean;
-  fetchCoursesInfo: (page: number) => Promise<void>;
+  fetchCoursesInfo: (page: number, params: FetchCourseInfoParams) => Promise<void>;
   fetchCourseInfoByUrl: (courseUrl: string) => Promise<CourseInfo | null>;
   updateCourseInfo: (
     courseUrl: string,
@@ -19,7 +26,7 @@ export interface CourseInfoStore {
   ) => Promise<void>;
   addNewCourseInfo: (courseUrl: string, info: CourseInfo) => void;
   deleteCourse: (courseUrl: string) => Promise<void>;
-  getCourseInfoToCards: (page: number) => Promise<CourseCard[]>;
+  getCourseInfoToCards: (page: number, params: FetchCourseInfoParams) => Promise<CourseCard[]>;
   getCourseInfoToDetail: (courseUrl: string) => Promise<CourseDetail | null>;
   changeMaterialCount: (courseUrl: string, pageLength: number) => void;
   publishCourse: (courseUrl: string) => Promise<void>;

@@ -8,9 +8,10 @@ const getCourses = async (
   search: string | null,
   sort: string | null,
   limit: number,
-  offset: number
+  offset: number,
+  onlySaved: boolean
 ) => {
-  const query = `SELECT * FROM get_all_courses_info($1, $2, $3, $4, $5, $6);`;
+  const query = `SELECT * FROM get_all_courses_info($1, $2, $3, $4, $5, $6, $7);`;
   const values = [
     userId,
     type || null,
@@ -18,6 +19,7 @@ const getCourses = async (
     sort || "newest",
     limit,
     offset,
+    onlySaved
   ];
   try {
     const result = await pool.query(query, values);

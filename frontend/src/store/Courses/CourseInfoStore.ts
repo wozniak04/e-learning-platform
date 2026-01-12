@@ -27,6 +27,7 @@ const replaceFirst20InfoWithNewCoursesInfo = (
 
 export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
   coursesInfo: {},
+  totalCount: 0,
   isLoading: false,
   fetchCourseInfoByUrl: async (courseUrl) => {
     if (get().coursesInfo[courseUrl]) {
@@ -35,17 +36,20 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
     set({ isLoading: true });
     try {
       const response = await axios.get(`${BACKEND_URL}/courses/${courseUrl}`);
-      const courseInfo = response.data.course;
-      console.log(courseInfo);
+      const courseInfoFromApi = response.data.course;
       if (Object.keys(get().coursesInfo).length < MAX_COURSE_INFO_STORE) {
-        set({
-          coursesInfo: { ...get().coursesInfo, courseInfo },
-        });
+        if (Object.keys(get().coursesInfo).length === 0) {
+          set({ coursesInfo: { ...courseInfoFromApi }, totalCount: 1 })
+        } else {
+          set({
+            coursesInfo: { ...get().coursesInfo, ...courseInfoFromApi }, totalCount: get().totalCount + 1
+          });
+        }
       } else {
         const updatedCoursesInfo = replaceFirstCourseInfoWithNewCourseInfo(
           get().coursesInfo,
           courseUrl,
-          courseInfo
+          courseInfoFromApi
         );
         set({
           coursesInfo: updatedCoursesInfo,
@@ -59,10 +63,23 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       return null;
     }
   },
-  fetchCoursesInfo: async (page) => {
+  fetchCoursesInfo: async (page, params) => {
     set({ isLoading: true });
     try {
-      const response = await axios.get(`${BACKEND_URL}/courses?page=${page}`);
+      const limit = 6;
+
+      const offset = (page - 1) * limit;
+
+      const response = await axios.get(`${BACKEND_URL}/courses`, {
+        params: {
+          search: params.search,
+          type: params.type,
+          sort: params.sort,
+          onlySaved: params.onlysaved,
+          limit: limit,
+          offset: offset
+        }
+      });
       const coursesInfo = response.data.courses;
       if (Object.keys(get().coursesInfo).length < MAX_COURSE_INFO_STORE) {
         set({
@@ -140,14 +157,14 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       throw error;
     }
   },
-  getCourseInfoToCards: async (page: number) => {
-    const coursesPerPage = 10;
+  getCourseInfoToCards: async (page, params) => {
+    const coursesPerPage = 6;
     const startIndex = (page - 1) * coursesPerPage;
     const endIndex = startIndex + coursesPerPage;
 
     let currentEntries = Object.entries(get().coursesInfo);
     if (startIndex >= currentEntries.length - 1) {
-      await get().fetchCoursesInfo(page);
+      await get().fetchCoursesInfo(page, params);
       currentEntries = Object.entries(get().coursesInfo);
     }
     return currentEntries

@@ -4,7 +4,7 @@ import { getUserIdFromRequest } from "../middleware/authenticatejwt";
 
 const getCourses = async (req: Request, res: Response) => {
   try {
-    const { type, search, sort, limit, offset } = req.query;
+    const { type, search, sort, limit, offset, onlySaved } = req.query;
     const userId = await getUserIdFromRequest(req);
     const result = await courseDB.getCourses(
       userId,
@@ -12,7 +12,8 @@ const getCourses = async (req: Request, res: Response) => {
       search as string | null,
       sort as string | null,
       parseInt(limit as string) || 12,
-      parseInt(offset as string) || 0
+      parseInt(offset as string) || 0,
+      onlySaved === "true"
     );
     if (!result) {
       return res.status(500).json({ message: "Failed to fetch courses" });

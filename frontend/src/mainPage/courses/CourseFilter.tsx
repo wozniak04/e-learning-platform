@@ -10,7 +10,7 @@ function CourseFilter({ onApply }: CourseFilterProps) {
   const [onlySaved, setOnlySaved] = useState(false);
   const [searchInput, setSearchInput] = useState("");
   const [courseType, setCourseType] = useState("all");
-  const [orderBy, setOrderBy] = useState("newest");
+  const [orderBy, setOrderBy] = useState("alphabetical");
 
   return (
     <div id="CourseFilter">
@@ -61,9 +61,9 @@ function CourseFilter({ onApply }: CourseFilterProps) {
             <select
               value={orderBy}
               onChange={(e) => setOrderBy(e.target.value)}>
+              <option value="alphabetical">A-Z (Alfabetycznie)</option>
               <option value="newest">Najnowsze</option>
               <option value="oldest">Najstarsze</option>
-              <option value="alphabetical">A-Z (Alfabetycznie)</option>
             </select>
           </div>
 

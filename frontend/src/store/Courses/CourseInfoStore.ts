@@ -1,7 +1,7 @@
 import axios from "axios";
 import { BACKEND_URL } from "../../variables";
 import { create } from "zustand";
-import type { CourseInfo, CourseInfoStore } from "../Storetypes";
+import type { CourseInfo, CourseInfoStore, FetchCourseInfoParams, CourseCard } from "../Storetypes";
 const MAX_COURSE_INFO_STORE = 150;
 
 const replaceFirstCourseInfoWithNewCourseInfo = (
@@ -25,6 +25,74 @@ const replaceFirst20InfoWithNewCoursesInfo = (
   return updatedCoursesInfo;
 };
 
+const filterCourses = (
+  Courses: { [url: string]: CourseInfo },
+  filters: FetchCourseInfoParams = {},
+  savedCoursesUrls: string[] = []
+): CourseCard[] => {
+
+  const entries = Object.entries(Courses).map(([url, info]) => ({
+    title: info.title,
+    description: info.quick_description,
+    url: url,
+    imgsrc: info.imgsrc || "default-placeholder.png",
+    _type: info.type,
+    _created_at: info.created_at,
+  }));
+
+
+  const filtered = entries.filter((course) => {
+
+    if (filters.search) {
+      const searchTerm = filters.search.toLowerCase();
+      const matchesSearch =
+        course.title.toLowerCase().includes(searchTerm) ||
+        course.description.toLowerCase().includes(searchTerm);
+      if (!matchesSearch) return false;
+    }
+
+
+    if (filters.type && filters.type !== 'all') {
+      if (course._type !== filters.type) return false;
+    }
+
+
+    if (filters.onlysaved) {
+      if (!savedCoursesUrls.includes(course.url)) return false;
+    }
+
+    return true;
+  });
+
+
+  if (filters.sort) {
+    filtered.sort((a, b) => {
+      switch (filters.sort) {
+        case 'newest': {
+          const timeA = a._created_at ? new Date(a._created_at).getTime() : 0;
+          const timeB = b._created_at ? new Date(b._created_at).getTime() : 0;
+          return timeB - timeA;
+        }
+        case 'oldest': {
+          const timeA = a._created_at ? new Date(a._created_at).getTime() : 0;
+          const timeB = b._created_at ? new Date(b._created_at).getTime() : 0;
+          return timeA - timeB;
+        }
+        case 'alphabetical':
+          return a.title.localeCompare(b.title);
+        default:
+          return 0;
+      }
+    });
+  }
+
+  return filtered.map(({ title, description, url, imgsrc }) => ({
+    title,
+    description,
+    url,
+    imgsrc,
+  }));
+};
 export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
   coursesInfo: {},
   totalCount: 0,
@@ -157,24 +225,23 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       throw error;
     }
   },
-  getCourseInfoToCards: async (page, params) => {
+  getCourseInfoToCards: async (page, params, filtresChanged, savedCourses) => {
     const coursesPerPage = 6;
     const startIndex = (page - 1) * coursesPerPage;
     const endIndex = startIndex + coursesPerPage;
 
-    let currentEntries = Object.entries(get().coursesInfo);
-    if (startIndex >= currentEntries.length - 1) {
+    if (filtresChanged) {
+      await get().fetchCoursesInfo(page, params)
+    }
+
+    let currentEntries = filterCourses(get().coursesInfo, params, savedCourses);
+    if (startIndex >= currentEntries.length - 1 && !filtresChanged) {
       await get().fetchCoursesInfo(page, params);
-      currentEntries = Object.entries(get().coursesInfo);
+      currentEntries = filterCourses(get().coursesInfo, params, savedCourses);
     }
     return currentEntries
       .slice(startIndex, endIndex)
-      .map(([url, info]: [string, CourseInfo]) => ({
-        title: info.title,
-        description: info.quick_description,
-        url: url,
-        imgsrc: info.imgsrc || "default-placeholder.png",
-      }));
+
   },
   getCourseInfoToDetail: async (courseUrl) => {
     const courseInfo = await get().fetchCourseInfoByUrl(courseUrl);

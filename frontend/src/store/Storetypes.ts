@@ -26,7 +26,7 @@ export interface CourseInfoStore {
   ) => Promise<void>;
   addNewCourseInfo: (courseUrl: string, info: CourseInfo) => void;
   deleteCourse: (courseUrl: string) => Promise<void>;
-  getCourseInfoToCards: (page: number, params: FetchCourseInfoParams) => Promise<CourseCard[]>;
+  getCourseInfoToCards: (page: number, params: FetchCourseInfoParams, newFilters: boolean, savedCourses: string[]) => Promise<CourseCard[]>;
   getCourseInfoToDetail: (courseUrl: string) => Promise<CourseDetail | null>;
   changeMaterialCount: (courseUrl: string, pageLength: number) => void;
   publishCourse: (courseUrl: string) => Promise<void>;
@@ -49,19 +49,15 @@ export interface CourseDetail {
   created_at: Date | null;
 }
 
-export interface savedCourse {
-  url: string;
-  page: Number;
-}
+
 
 export interface savedCourseState {
-  savedCourses: savedCourse[];
+  savedCourses: string[];
   isLoading: boolean;
   isInSavedCourse: (id: string) => boolean;
   addToSavedCourses: (id: string) => Promise<void>;
   removeFromSavedCourse: (id: string) => Promise<void>;
-  getPageOfSavedCourse: (id: string) => Number | null;
-  fetchsavedCourses: () => Promise<savedCourse[]>;
+  fetchsavedCourses: () => Promise<string[]>;
 
   clearStore: () => void;
 }

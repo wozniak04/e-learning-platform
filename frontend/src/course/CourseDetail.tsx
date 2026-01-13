@@ -33,7 +33,7 @@ function CourseDetails() {
   useEffect(() => {
     try {
       fetchsavedCourses().then((res) => {
-        setIsSaved(res.some((course) => course.url === id));
+        setIsSaved(res.some((course) => course === id));
       });
       getCourseDetail(id!).then((data) => {
         if (data) {
@@ -86,8 +86,7 @@ function CourseDetails() {
         {auth.username === courseDetail.owner_name && (
           <button
             className="edit-course-button"
-            onClick={() => navigate(`/course/${id}/edit`)}
-          >
+            onClick={() => navigate(`/course/${id}/edit`)}>
             Edytuj kurs
           </button>
         )}
@@ -136,8 +135,7 @@ function CourseDetails() {
                 </button>
                 <button
                   className="enroll-btn"
-                  onClick={() => navigate(`/course/${id}/learn`)}
-                >
+                  onClick={() => navigate(`/course/${id}/learn`)}>
                   przejdź do kursu
                 </button>
               </div>

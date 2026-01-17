@@ -13,6 +13,7 @@ import EditCourse from "./course/edit/EditCourse";
 import CourseMaterialEditor from "./course/materials/CourseMaterialEditor";
 import Learn from "./course/materials/Learn";
 import "react-toastify/dist/ReactToastify.css";
+import AddComment from "./course/AddCourseComment";
 function App() {
   return (
     <>
@@ -32,6 +33,7 @@ function App() {
               element={<CourseMaterialEditor />}
             />
             <Route path="/course/:id/learn" element={<Learn />} />
+            <Route path="/course/:id/AddComment" element={<AddComment />} />
           </Route>
           <Route path="*" element={<NotFoundPage />} />
         </Routes>

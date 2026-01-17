@@ -119,3 +119,31 @@
     height: 36px;
   }
 }
+
+.comment-edit-link {
+  font-size: 0.75rem;
+  color: #6366f1; 
+  text-decoration: none;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: #f5f3ff;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  margin-bottom: 4px; 
+}
+
+.comment-edit-link:hover {
+  background: #eef2ff;
+  color: #4338ca;
+  border-color: #c7d2fe;
+}
+
+
+@media (max-width: 600px) {
+  .comment-edit-link {
+    margin-bottom: 0;
+    margin-left: auto; 
+    order: 3; 
+  }
+}

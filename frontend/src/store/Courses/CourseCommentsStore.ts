@@ -36,24 +36,29 @@ export const useCourseCommentsStore = create<CourseCommentsStore>(
       }
     },
 
-    addComment: async (courseUrl, newComment) => {
+    addComment: async (courseUrl, newComment, newRating) => {
       set({ isLoading: true });
+
       try {
-        const result = await axios.post(
-          `${BACKEND_URL}/courses/${courseUrl}/comments`,
-          newComment,
+        console.log("zapyt")
+        await axios.post(
+          `${BACKEND_URL}/courses/${courseUrl}/comment`,
+          { comment: newComment, rating: newRating },
           {
             withCredentials: true,
           }
         );
+        const response = await axios.get(
+          `${BACKEND_URL}/courses/${courseUrl}/comments`
+        );
+        const data = response.data.comments;
+
         set({
           comments: {
             ...get().comments,
-            [courseUrl]: {
-              average_rating: result.data.newAverage,
-              comment: [...get().comments[courseUrl].comment, newComment],
-            },
+            [courseUrl]: data,
           },
+          isLoading: false,
         });
       } catch (error) {
         set({ isLoading: false });

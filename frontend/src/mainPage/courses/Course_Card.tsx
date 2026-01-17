@@ -5,7 +5,7 @@ interface Props {
   name: string;
   description: string;
   url: string;
-  imgsrc: string | null;
+  img: string | null;
 }
 
 function Course(props: Props) {
@@ -20,8 +20,8 @@ function Course(props: Props) {
         <p>{isSavedCourse(props.url) ? "zapisany" : "niezapisany"}</p>
         <img
           src={
-            props.imgsrc
-              ? props.imgsrc
+            props.img
+              ? props.img
               : "https://www.e-learning.pl/wp-content/uploads/2023/06/elpl.jpg"
           }
           alt={props.name}

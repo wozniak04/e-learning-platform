@@ -1,8 +1,10 @@
 import axios from "axios";
-import { BACKEND_URL } from "../../variables";
+import { BACKEND_URL, COURSES_PER_PAGE } from "../../variables";
 import { create } from "zustand";
 import type { CourseInfo, CourseInfoStore, FetchCourseInfoParams, CourseCard } from "../Storetypes";
 const MAX_COURSE_INFO_STORE = 150;
+
+let timer: number = 0;
 
 const replaceFirstCourseInfoWithNewCourseInfo = (
   Courses: { [url: string]: CourseInfo },
@@ -35,7 +37,7 @@ const filterCourses = (
     title: info.title,
     description: info.quick_description,
     url: url,
-    imgsrc: info.imgsrc || "default-placeholder.png",
+    img: info.img || "",
     _type: info.type,
     _created_at: info.created_at,
   }));
@@ -86,15 +88,16 @@ const filterCourses = (
     });
   }
 
-  return filtered.map(({ title, description, url, imgsrc }) => ({
+  return filtered.map(({ title, description, url, img }) => ({
     title,
     description,
     url,
-    imgsrc,
+    img,
   }));
 };
 export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
   coursesInfo: {},
+  coursesCard: [],
   totalCount: 0,
   isLoading: false,
   fetchCourseInfoByUrl: async (courseUrl) => {
@@ -105,6 +108,7 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
     try {
       const response = await axios.get(`${BACKEND_URL}/courses/${courseUrl}`);
       const courseInfoFromApi = response.data.course;
+      console.log(courseInfoFromApi)
       if (Object.keys(get().coursesInfo).length < MAX_COURSE_INFO_STORE) {
         if (Object.keys(get().coursesInfo).length === 0) {
           set({ coursesInfo: { ...courseInfoFromApi }, totalCount: 1 })
@@ -137,7 +141,6 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       const limit = 6;
 
       const offset = (page - 1) * limit;
-
       const response = await axios.get(`${BACKEND_URL}/courses`, {
         params: {
           search: params.search,
@@ -149,6 +152,8 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
         }
       });
       const coursesInfo = response.data.courses;
+      const total_Count = response.data.totalCount
+      set({ totalCount: total_Count })
       if (Object.keys(get().coursesInfo).length < MAX_COURSE_INFO_STORE) {
         set({
           coursesInfo: { ...get().coursesInfo, ...coursesInfo },
@@ -164,6 +169,7 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
         });
         set({ isLoading: false });
       }
+      set({ isLoading: false });
     } catch (error) {
       set({ isLoading: false });
       throw error;
@@ -226,21 +232,23 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
     }
   },
   getCourseInfoToCards: async (page, params, filtresChanged, savedCourses) => {
-    const coursesPerPage = 6;
-    const startIndex = (page - 1) * coursesPerPage;
-    const endIndex = startIndex + coursesPerPage;
-
-    if (filtresChanged) {
-      await get().fetchCoursesInfo(page, params)
-    }
+    const startIndex = (page - 1) * COURSES_PER_PAGE;
+    const endIndex = startIndex + COURSES_PER_PAGE;
+    clearTimeout(timer);
 
     let currentEntries = filterCourses(get().coursesInfo, params, savedCourses);
-    if (startIndex >= currentEntries.length - 1 && !filtresChanged) {
+    if (currentEntries.length < COURSES_PER_PAGE && filtresChanged) {
+      console.log("if")
+      timer = setTimeout(async () => {
+        await get().fetchCoursesInfo(page, params);
+        currentEntries = filterCourses(get().coursesInfo, params, savedCourses);
+      }, 2000)
+    }
+    if (startIndex >= currentEntries.length - 1) {
       await get().fetchCoursesInfo(page, params);
       currentEntries = filterCourses(get().coursesInfo, params, savedCourses);
     }
-    return currentEntries
-      .slice(startIndex, endIndex)
+    set({ coursesCard: currentEntries.slice(startIndex, endIndex) })
 
   },
   getCourseInfoToDetail: async (courseUrl) => {
@@ -248,11 +256,12 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
     if (!courseInfo) {
       return null;
     }
+
     return {
       title: courseInfo.title,
       description: courseInfo.description,
       owner_name: courseInfo.owner_name,
-      imgsrc: courseInfo.imgsrc || "default-placeholder.png",
+      imgsrc: courseInfo.img || "default-placeholder.png",
       type: courseInfo.type || "default",
       material_count: courseInfo.material_count,
       created_at: courseInfo.created_at

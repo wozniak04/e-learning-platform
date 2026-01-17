@@ -9,13 +9,14 @@ export interface CourseInfo {
   description: string;
   quick_description: string;
   owner_name: string;
-  imgsrc?: string;
+  img?: string;
   type?: string;
   material_count: number;
   created_at: Date | null;
 }
 export interface CourseInfoStore {
   coursesInfo: { [url: string]: CourseInfo };
+  coursesCard: CourseCard[]
   totalCount: number;
   isLoading: boolean;
   fetchCoursesInfo: (page: number, params: FetchCourseInfoParams) => Promise<void>;
@@ -26,7 +27,7 @@ export interface CourseInfoStore {
   ) => Promise<void>;
   addNewCourseInfo: (courseUrl: string, info: CourseInfo) => void;
   deleteCourse: (courseUrl: string) => Promise<void>;
-  getCourseInfoToCards: (page: number, params: FetchCourseInfoParams, newFilters: boolean, savedCourses: string[]) => Promise<CourseCard[]>;
+  getCourseInfoToCards: (page: number, params: FetchCourseInfoParams, newFilters: boolean, savedCourses: string[]) => Promise<void>;
   getCourseInfoToDetail: (courseUrl: string) => Promise<CourseDetail | null>;
   changeMaterialCount: (courseUrl: string, pageLength: number) => void;
   publishCourse: (courseUrl: string) => Promise<void>;
@@ -36,14 +37,14 @@ export interface CourseCard {
   title: string;
   description: string;
   url: string;
-  imgsrc: string;
+  img: string;
 }
 
 export interface CourseDetail {
   title: string;
   description?: string;
   owner_name: string;
-  imgsrc?: string;
+  img?: string;
   type?: string;
   material_count: number;
   created_at: Date | null;
@@ -94,6 +95,6 @@ export interface CourseCommentsStore {
   };
   isLoading: boolean;
   fetchComments: (courseUrl: string) => Promise<LocalCommentsState | void>;
-  addComment: (courseUrl: string, comment: CourseComments) => void;
+  addComment: (courseUrl: string, comment: string, rating: number) => Promise<void>;
   clearStore: () => void;
 }

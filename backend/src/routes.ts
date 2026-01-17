@@ -118,7 +118,7 @@ router.get(
 );
 router.get("/courses/:id/comments", whoisthis, courses.getCourseComments);
 router.post(
-  "/courses/:id/comments",
+  "/courses/:id/comment",
   whoisthis,
   authenticateJWT,
   courses.addCourseReview

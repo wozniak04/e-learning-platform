@@ -23,12 +23,16 @@ const getCourses = async (
   ];
   try {
     const result = await pool.query(query, values);
-
-    return result.rows.reduce((acc, course) => {
-      const { url, ...rest } = course;
-      acc[url] = rest;
-      return acc;
-    }, {});
+    let totalCount = 0
+    return {
+      courses: result.rows.reduce((acc, course) => {
+        const { url, total_count, ...rest } = course;
+        totalCount = total_count
+        acc[url] = rest;
+        return acc;
+      }, {}),
+      total_Count: totalCount
+    };
   } catch (error) {
     console.error("Error fetching courses: ", error);
     return null;

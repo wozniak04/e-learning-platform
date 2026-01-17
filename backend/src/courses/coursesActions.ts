@@ -18,7 +18,7 @@ const getCourses = async (req: Request, res: Response) => {
     if (!result) {
       return res.status(500).json({ message: "Failed to fetch courses" });
     }
-    return res.status(200).json({ courses: result });
+    return res.status(200).json({ courses: result.courses, totalCount: result.total_Count });
   } catch (error) {
     console.error("Error fetching courses:", error);
     return res.status(500).json({ message: "Internal server error" });

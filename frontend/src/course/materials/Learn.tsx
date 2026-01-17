@@ -9,7 +9,7 @@ import type { CourseMaterial } from "../../store/Storetypes";
 function Learn() {
   const { id } = useParams();
   const fetchMaterial = useCourseMaterialStore(
-    (state) => state.fetchCourseMaterials
+    (state) => state.fetchCourseMaterials,
   );
 
   const [materials, setMaterials] = useState<CourseMaterial[]>([]);
@@ -41,8 +41,7 @@ function Learn() {
         <div className="pages">
           <div
             className={`nav-btn ${currentPage === 1 ? "disabled" : ""}`}
-            onClick={() => handlePageChange(currentPage - 1)}
-          >
+            onClick={() => handlePageChange(currentPage - 1)}>
             Poprzedni
           </div>
 
@@ -51,8 +50,7 @@ function Learn() {
               <div
                 key={index}
                 className={`page ${currentPage === m.page ? "active" : ""}`}
-                onClick={() => handlePageChange(m.page)}
-              >
+                onClick={() => handlePageChange(m.page)}>
                 {m.page}
               </div>
             ))}
@@ -62,8 +60,7 @@ function Learn() {
             className={`nav-btn ${
               currentPage === totalPages ? "disabled" : ""
             }`}
-            onClick={() => handlePageChange(currentPage + 1)}
-          >
+            onClick={() => handlePageChange(currentPage + 1)}>
             Następny
           </div>
         </div>
@@ -75,6 +72,11 @@ function Learn() {
         <div className="markdown-content">
           <ReactMarkdown>{currentMaterial?.content || ""}</ReactMarkdown>
         </div>
+        {currentPage === totalPages && (
+          <Link to={`/course/${id}/AddComment`}>
+            <button>zakończ kurs</button>
+          </Link>
+        )}
       </div>
     </div>
   );

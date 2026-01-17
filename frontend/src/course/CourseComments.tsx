@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { useCourseCommentsStore } from "../store/Courses/CourseCommentsStore";
 import type { LocalCommentsState } from "../store/Storetypes";
 import "./styles/CourseComments.css";
+import { useAuth } from "../auth/AuthContext";
+import { Link } from "react-router-dom";
 
 interface Props {
   courseUrl: string;
@@ -9,8 +11,8 @@ interface Props {
 
 const CourseComments = ({ courseUrl }: Props) => {
   const { fetchComments, isLoading } = useCourseCommentsStore();
-
-  const [localData, setLocalData] = useState<LocalCommentsState | null>(null);
+  const auth = useAuth();
+  const [comments, setComments] = useState<LocalCommentsState | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -18,13 +20,13 @@ const CourseComments = ({ courseUrl }: Props) => {
         const result = await fetchComments(courseUrl);
 
         if (result) {
-          setLocalData({
+          setComments({
             average_rating: result.average_rating,
             comments: result.comments,
           });
         }
       } catch (error) {
-        setLocalData({ average_rating: 0, comments: [] });
+        setComments({ average_rating: 0, comments: [] });
       }
     };
 
@@ -32,17 +34,24 @@ const CourseComments = ({ courseUrl }: Props) => {
   }, [courseUrl]);
 
   if (isLoading) return <div>Ładowanie opinii...</div>;
-  if (!localData || localData.comments.length === 0)
+  if (!comments || comments.comments.length === 0)
     return <div>Brak opinii dla tego kursu.</div>;
 
   return (
     <div className="comments-display-container">
-      <h3>Średnia ocena: {localData.average_rating} / 10</h3>
+      <h3>Średnia ocena: {comments.average_rating} / 10</h3>
 
       <div className="comments-list">
-        {localData.comments.map((c, index) => (
+        {comments.comments.map((c, index) => (
           <div key={index} className="comment-card">
             <div className="comment-side-info">
+              {auth.username === c.user_name && (
+                <Link
+                  to={`/course/${courseUrl}/AddComment`}
+                  className="comment-edit-link">
+                  edycja komentarza
+                </Link>
+              )}
               <img
                 src={c.user_avatar}
                 alt="avatar"

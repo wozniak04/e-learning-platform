@@ -38,18 +38,7 @@ const getCourses = async (
     return null;
   }
 };
-const getCoursesCount = async (type: string | null, search: string | null) => {
-  const query = `SELECT * FROM get_courses_count($1, $2);`;
-  const values = [type || null, search || null];
-  try {
-    const result = await pool.query(query, values);
 
-    return result.rows[0].get_courses_count;
-  } catch (error) {
-    console.error("Error fetching courses count: ", error);
-    return null;
-  }
-};
 
 const getCourseById = async (courseId: string) => {
   const query = "select * from get_course_info_by_url($1);";
@@ -322,24 +311,7 @@ const addCourseComment = async (
   }
 };
 
-const editCourseComment = async (
-  url: string,
-  user_id: string,
-  rating: number,
-  comment: string
-): Promise<number> => {
-  try {
-    const result = await pool.query(
-      "SELECT public.edit_course_review($1, $2, $3, $4) as status",
-      [url, user_id, rating, comment]
-    );
 
-    return parseInt(result.rows[0].status);
-  } catch (error) {
-    console.error("error while editing course comment ", error);
-    return 500;
-  }
-};
 const deleteCourseComment = async (
   url: string,
   user_id: string
@@ -358,7 +330,6 @@ const deleteCourseComment = async (
 };
 export default {
   getCourses,
-  getCoursesCount,
   getCourseById,
   getSavedCourses,
   signToCourse,
@@ -375,6 +346,5 @@ export default {
   deleteCoursePage,
   getCourseComments,
   addCourseComment,
-  editCourseComment,
   deleteCourseComment,
 };

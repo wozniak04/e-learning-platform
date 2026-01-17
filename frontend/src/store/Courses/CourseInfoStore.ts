@@ -99,6 +99,7 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
   coursesInfo: {},
   coursesCard: [],
   totalCount: 0,
+  totalPages: 0,
   isLoading: false,
   fetchCourseInfoByUrl: async (courseUrl) => {
     if (get().coursesInfo[courseUrl]) {
@@ -111,10 +112,10 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       console.log(courseInfoFromApi)
       if (Object.keys(get().coursesInfo).length < MAX_COURSE_INFO_STORE) {
         if (Object.keys(get().coursesInfo).length === 0) {
-          set({ coursesInfo: { ...courseInfoFromApi }, totalCount: 1 })
+          set({ coursesInfo: { ...courseInfoFromApi }, totalCount: 1, totalPages: Math.ceil(get().totalCount / COURSES_PER_PAGE) })
         } else {
           set({
-            coursesInfo: { ...get().coursesInfo, ...courseInfoFromApi }, totalCount: get().totalCount + 1
+            coursesInfo: { ...get().coursesInfo, ...courseInfoFromApi }, totalCount: get().totalCount + 1, totalPages: Math.ceil(get().totalCount / COURSES_PER_PAGE)
           });
         }
       } else {
@@ -138,8 +139,7 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
   fetchCoursesInfo: async (page, params) => {
     set({ isLoading: true });
     try {
-      const limit = 6;
-
+      const limit = COURSES_PER_PAGE;
       const offset = (page - 1) * limit;
       const response = await axios.get(`${BACKEND_URL}/courses`, {
         params: {
@@ -153,12 +153,13 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       });
       const coursesInfo = response.data.courses;
       const total_Count = response.data.totalCount
+      console.log(coursesInfo)
       set({ totalCount: total_Count })
       if (Object.keys(get().coursesInfo).length < MAX_COURSE_INFO_STORE) {
         set({
-          coursesInfo: { ...get().coursesInfo, ...coursesInfo },
+          coursesInfo: { ...get().coursesInfo, ...coursesInfo }, isLoading: false, totalCount: total_Count, totalPages: Math.ceil(get().totalCount / COURSES_PER_PAGE)
         });
-        set({ isLoading: false });
+
       } else {
         const updatedCoursesInfo = replaceFirst20InfoWithNewCoursesInfo(
           get().coursesInfo,
@@ -170,6 +171,7 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
         set({ isLoading: false });
       }
       set({ isLoading: false });
+      return coursesInfo
     } catch (error) {
       set({ isLoading: false });
       throw error;
@@ -197,7 +199,7 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
   addNewCourseInfo: (courseUrl, info) => {
     if (Object.keys(get().coursesInfo).length < MAX_COURSE_INFO_STORE) {
       set({
-        coursesInfo: { ...get().coursesInfo, [courseUrl]: info },
+        coursesInfo: { ...get().coursesInfo, [courseUrl]: info }, totalCount: get().totalCount + 1, totalPages: Math.ceil(get().totalCount / COURSES_PER_PAGE)
       });
     }
     const updatedCoursesInfo = replaceFirstCourseInfoWithNewCourseInfo(
@@ -235,7 +237,12 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
     const startIndex = (page - 1) * COURSES_PER_PAGE;
     const endIndex = startIndex + COURSES_PER_PAGE;
     clearTimeout(timer);
-
+    if (!filtresChanged && startIndex > Object.keys(get().coursesInfo).length) {
+      const result = await get().fetchCoursesInfo(page, params)
+      const filter = filterCourses(result!, params, savedCourses)
+      set({ coursesCard: filter })
+      return;
+    }
     let currentEntries = filterCourses(get().coursesInfo, params, savedCourses);
     if (currentEntries.length < COURSES_PER_PAGE && filtresChanged) {
       console.log("if")

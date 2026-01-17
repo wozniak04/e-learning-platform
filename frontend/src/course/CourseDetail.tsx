@@ -17,16 +17,16 @@ function CourseDetails() {
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [courseDetail, setCourseDetail] = useState<CourseDetail | null>(null);
   const signuptoCourse = useSavedCoursesStore(
-    (state) => state.addToSavedCourses
+    (state) => state.addToSavedCourses,
   );
   const unsigntoCourse = useSavedCoursesStore(
-    (state) => state.removeFromSavedCourse
+    (state) => state.removeFromSavedCourse,
   );
   const fetchsavedCourses = useSavedCoursesStore(
-    (state) => state.fetchsavedCourses
+    (state) => state.fetchsavedCourses,
   );
   const getCourseDetail = useCoursesInfoStore(
-    (state) => state.getCourseInfoToDetail
+    (state) => state.getCourseInfoToDetail,
   );
   const loading = useCoursesInfoStore((state) => state.isLoading);
 
@@ -95,8 +95,8 @@ function CourseDetails() {
           <div className="course-image">
             <img
               src={
-                courseDetail.imgsrc
-                  ? courseDetail.imgsrc
+                courseDetail.img
+                  ? courseDetail.img
                   : "https://www.e-learning.pl/wp-content/uploads/2023/06/elpl.jpg"
               }
               alt="Course"

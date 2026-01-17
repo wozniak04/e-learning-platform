@@ -40,7 +40,6 @@ export const useCourseCommentsStore = create<CourseCommentsStore>(
       set({ isLoading: true });
 
       try {
-        console.log("zapyt")
         await axios.post(
           `${BACKEND_URL}/courses/${courseUrl}/comment`,
           { comment: newComment, rating: newRating },
@@ -60,13 +59,41 @@ export const useCourseCommentsStore = create<CourseCommentsStore>(
           },
           isLoading: false,
         });
+
       } catch (error) {
         set({ isLoading: false });
         console.error("Error adding comment:", error);
         throw error;
       }
     },
+    sortComments: (courseUrl, sortBy) => {
+      const currentData = get().comments[courseUrl];
+      if (!currentData) return;
 
+      const sortedList = [...currentData.comments].sort((a, b) => {
+        switch (sortBy) {
+          case 'rating-desc':
+            return b.review_rating - a.review_rating;
+          case 'rating-asc':
+            return a.review_rating - b.review_rating;
+          case 'date-desc':
+            return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+          case 'date-asc':
+            return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+          default:
+            return 0;
+        }
+      });
+      set((state) => ({
+        comments: {
+          ...state.comments,
+          [courseUrl]: {
+            ...currentData,
+            comments: sortedList,
+          },
+        },
+      }));
+    },
     clearStore: () => {
       set({ comments: {}, isLoading: false });
     },

@@ -27,7 +27,6 @@ function Courses() {
   const totalCountOfCards = useCoursesInfoStore((state) => state.totalCount);
   const savedCourses = useSavedCoursesStore((state) => state.savedCourses);
   const isLoading = useCoursesInfoStore((state) => state.isLoading);
-
   const totalPages = Math.ceil(totalCountOfCards / COURSES_PER_PAGE);
 
   const onAplyFilter = async (params: FetchCourseInfoParams) => {

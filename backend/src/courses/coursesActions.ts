@@ -25,22 +25,7 @@ const getCourses = async (req: Request, res: Response) => {
   }
 };
 
-const getCoursesCount = async (req: Request, res: Response) => {
-  try {
-    const { type, search } = req.query;
-    const result = await courseDB.getCoursesCount(
-      type as string | null,
-      search as string | null
-    );
-    if (!result) {
-      return res.status(500).json({ message: "Failed to fetch courses count" });
-    }
-    return res.status(200).json({ count: result });
-  } catch (error) {
-    console.error("Error fetching courses count:", error);
-    return res.status(500).json({ message: "Internal server error" });
-  }
-};
+
 const getCourseById = async (req: Request, res: Response) => {
   try {
     const courseId = req.params.id;
@@ -394,35 +379,7 @@ const addCourseReview = async (req: Request, res: Response) => {
     newAverage: result,
   });
 };
-const editCourseReview = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const user_id = req.user.sub;
-  const { rating, comment } = req.body;
 
-  if (!rating || !comment) {
-    return res
-      .status(400)
-      .json({ message: "bad request: rating and comment are required" });
-  }
-
-  const result = await courseDB.editCourseComment(id, user_id, rating, comment);
-
-  if (result === 404)
-    return res.status(404).json({ message: "course or review not found" });
-
-  if (result === 403)
-    return res
-      .status(403)
-      .json({ message: "you can only edit your own reviews" });
-
-  if (result === 400)
-    return res.status(400).json({ message: "rating must be between 1 and 10" });
-
-  if (result === 200)
-    return res.status(200).json({ message: "success: review updated" });
-
-  return res.status(500).json({ message: "server error" });
-};
 const deleteCourseReview = async (req: Request, res: Response) => {
   const { id } = req.params;
   const user_id = req.user.sub;
@@ -448,7 +405,6 @@ const deleteCourseReview = async (req: Request, res: Response) => {
 
 export default {
   getCourses,
-  getCoursesCount,
   getCourseById,
   signupToCourse,
   getSavedCoursesByUserid,
@@ -464,6 +420,5 @@ export default {
   publishCourse,
   getCourseComments,
   addCourseReview,
-  editCourseReview,
   deleteCourseReview,
 };

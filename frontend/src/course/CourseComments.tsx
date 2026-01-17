@@ -1,49 +1,60 @@
 import { useEffect, useState } from "react";
 import { useCourseCommentsStore } from "../store/Courses/CourseCommentsStore";
-import type { LocalCommentsState } from "../store/Storetypes";
 import "./styles/CourseComments.css";
 import { useAuth } from "../auth/AuthContext";
 import { Link } from "react-router-dom";
+import Spinner from "../Spinner";
 
 interface Props {
   courseUrl: string;
 }
 
 const CourseComments = ({ courseUrl }: Props) => {
-  const { fetchComments, isLoading } = useCourseCommentsStore();
+  const {
+    fetchComments,
+    sortComments,
+    isLoading,
+    comments: storeComments,
+  } = useCourseCommentsStore();
   const auth = useAuth();
-  const [comments, setComments] = useState<LocalCommentsState | null>(null);
+  const [sortBy, setSortBy] = useState("date-desc");
+
+  const currentCourseData = storeComments[courseUrl];
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const result = await fetchComments(courseUrl);
-
-        if (result) {
-          setComments({
-            average_rating: result.average_rating,
-            comments: result.comments,
-          });
-        }
-      } catch (error) {
-        setComments({ average_rating: 0, comments: [] });
-      }
-    };
-
-    loadData();
+    fetchComments(courseUrl);
   }, [courseUrl]);
 
-  if (isLoading) return <div>Ładowanie opinii...</div>;
-  if (!comments || comments.comments.length === 0)
+  const handleSortChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value as any;
+    setSortBy(value);
+    sortComments(courseUrl, value);
+  };
+
+  if (isLoading && !currentCourseData) return <Spinner />;
+
+  if (!currentCourseData || currentCourseData.comments.length === 0)
     return <div>Brak opinii dla tego kursu.</div>;
 
   return (
     <div className="comments-display-container">
-      <h3>Średnia ocena: {comments.average_rating} / 10</h3>
+      <div className="comments-header">
+        <h3>Średnia ocena: {currentCourseData.average_rating} / 10</h3>
+
+        <div className="sort-container">
+          <label htmlFor="comment-sort">Sortuj według: </label>
+          <select id="comment-sort" value={sortBy} onChange={handleSortChange}>
+            <option value="date-desc">Najnowsze</option>
+            <option value="date-asc">Najstarsze</option>
+            <option value="rating-desc">Ocena: od najwyższej</option>
+            <option value="rating-asc">Ocena: od najniższej</option>
+          </select>
+        </div>
+      </div>
 
       <div className="comments-list">
-        {comments.comments.map((c, index) => (
-          <div key={index} className="comment-card">
+        {currentCourseData.comments.map((c, index) => (
+          <div key={`${c.user_name}-${index}`} className="comment-card">
             <div className="comment-side-info">
               {auth.username === c.user_name && (
                 <Link
@@ -59,7 +70,7 @@ const CourseComments = ({ courseUrl }: Props) => {
               />
               <div className="comment-user-details">
                 <strong>{c.user_name}</strong>
-                <small>{c.created_at}</small>
+                <small>{new Date(c.created_at).toLocaleDateString()}</small>
               </div>
             </div>
 

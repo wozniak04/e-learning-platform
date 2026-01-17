@@ -45,7 +45,6 @@ router.get("/me", authenticateJWT, (req: Request, res: Response) => {
 });
 
 router.get("/courses", whoisthis, courses.getCourses);
-router.get("/courses/count", whoisthis, courses.getCoursesCount);
 router.get("/courses/saved", authenticateJWT, courses.getSavedCoursesByUserid);
 router.get("/courses/:id", whoisthis, courses.getCourseById);
 router.post(
@@ -123,12 +122,7 @@ router.post(
   authenticateJWT,
   courses.addCourseReview
 );
-router.put(
-  "/courses/:id/comments/edit",
-  whoisthis,
-  authenticateJWT,
-  courses.editCourseReview
-);
+
 router.delete(
   "/courses/:id/comments",
   whoisthis,

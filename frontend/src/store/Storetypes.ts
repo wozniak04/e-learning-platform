@@ -18,6 +18,7 @@ export interface CourseInfoStore {
   coursesInfo: { [url: string]: CourseInfo };
   coursesCard: CourseCard[]
   totalCount: number;
+  totalPages: number;
   isLoading: boolean;
   fetchCoursesInfo: (page: number, params: FetchCourseInfoParams) => Promise<void>;
   fetchCourseInfoByUrl: (courseUrl: string) => Promise<CourseInfo | null>;
@@ -91,10 +92,11 @@ export interface LocalCommentsState {
 }
 export interface CourseCommentsStore {
   comments: {
-    [url: string]: { average_rating: number; comment: CourseComments[] };
+    [url: string]: { average_rating: number; comments: CourseComments[] };
   };
   isLoading: boolean;
   fetchComments: (courseUrl: string) => Promise<LocalCommentsState | void>;
   addComment: (courseUrl: string, comment: string, rating: number) => Promise<void>;
+  sortComments: (courseUrl: string, sortBy: 'rating-desc' | 'rating-asc' | 'date-desc' | 'date-asc') => void
   clearStore: () => void;
 }

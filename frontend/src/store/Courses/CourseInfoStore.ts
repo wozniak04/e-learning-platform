@@ -4,7 +4,6 @@ import { create } from "zustand";
 import type { CourseInfo, CourseInfoStore, FetchCourseInfoParams, CourseCard } from "../Storetypes";
 const MAX_COURSE_INFO_STORE = 150;
 
-let timer: number = 0;
 
 const replaceFirstCourseInfoWithNewCourseInfo = (
   Courses: { [url: string]: CourseInfo },
@@ -236,7 +235,6 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
   getCourseInfoToCards: async (page, params, filtresChanged, savedCourses) => {
     const startIndex = (page - 1) * COURSES_PER_PAGE;
     const endIndex = startIndex + COURSES_PER_PAGE;
-    clearTimeout(timer);
     if (!filtresChanged && startIndex > Object.keys(get().coursesInfo).length) {
       const result = await get().fetchCoursesInfo(page, params)
       const filter = filterCourses(result!, params, savedCourses)

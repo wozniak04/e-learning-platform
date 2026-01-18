@@ -246,11 +246,9 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
     let currentEntries = filterCourses(get().coursesInfo, params, savedCourses);
     set({ totalCount: currentEntries.length, totalPages: Math.ceil((currentEntries.length) / COURSES_PER_PAGE) })
     if (currentEntries.length < COURSES_PER_PAGE && filtresChanged) {
-      console.log("if")
-      timer = setTimeout(async () => {
-        await get().fetchCoursesInfo(page, params);
-        currentEntries = filterCourses(get().coursesInfo, params, savedCourses);
-      }, 2000)
+      await get().fetchCoursesInfo(page, params);
+      currentEntries = filterCourses(get().coursesInfo, params, savedCourses);
+      set({ coursesCard: currentEntries })
     }
     if (startIndex >= currentEntries.length - 1) {
       await get().fetchCoursesInfo(page, params);

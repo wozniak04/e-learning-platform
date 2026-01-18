@@ -8,10 +8,11 @@ import { toast } from "react-toastify";
 import CourseFilter from "./CourseFilter";
 import Spinner from "../../Spinner";
 import { useTranslation } from "react-i18next";
+import { useAuth } from "../../auth/AuthContext";
 
 function Courses() {
   const { t } = useTranslation();
-
+  const auth = useAuth();
   const [params, setparams] = useState<FetchCourseInfoParams>({
     search: undefined,
     type: undefined,
@@ -45,7 +46,7 @@ function Courses() {
   useEffect(() => {
     const loadCourses = async () => {
       try {
-        await fetchCoursesSaved();
+        if (auth.isAuthenticated) await fetchCoursesSaved();
         await fetchCourseInfoToCards(page, params, false, savedCourses);
       } catch (error) {
         console.error(error);
@@ -90,14 +91,16 @@ function Courses() {
             <button
               className="pagination-btn"
               onClick={() => handlePageChange(page - 1)}
-              disabled={page === 1}>
+              disabled={page === 1}
+            >
               {t("previous")}
             </button>
 
             <button
               className="pagination-btn"
               onClick={() => handlePageChange(page + 1)}
-              disabled={page === totalPages}>
+              disabled={page === totalPages}
+            >
               {t("next")}
             </button>
           </div>

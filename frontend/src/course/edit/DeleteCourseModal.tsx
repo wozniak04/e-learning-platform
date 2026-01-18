@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import "../styles/DeleteCourseModal.css";
 
 interface DeleteCourseModalProps {
@@ -10,16 +11,18 @@ const DeleteCourseModal: React.FC<DeleteCourseModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <div className="modal-overlay" onClick={onCancel}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-        <p>Czy na pewno chcesz usunąć ten kurs?</p>
+        <p>{t("delete_modal.question")}</p>
         <div className="confirm-btns">
           <button type="button" onClick={onConfirm} className="confirm-yes">
-            Tak
+            {t("delete_modal.confirm")}
           </button>
           <button type="button" onClick={onCancel} className="confirm-no">
-            Nie
+            {t("delete_modal.cancel")}
           </button>
         </div>
       </div>

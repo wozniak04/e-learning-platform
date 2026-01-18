@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
+import { useTranslation } from "react-i18next";
 import TopNav from "../../mainPage/topnav/TopNav";
 import "../styles/learn.css";
 import { useCourseMaterialStore } from "../../store/Courses/courseMaterialStore";
@@ -7,6 +8,7 @@ import { useParams, Link } from "react-router-dom";
 import type { CourseMaterial } from "../../store/Storetypes";
 
 function Learn() {
+  const { t } = useTranslation();
   const { id } = useParams();
   const fetchMaterial = useCourseMaterialStore(
     (state) => state.fetchCourseMaterials,
@@ -36,13 +38,13 @@ function Learn() {
 
       <div className="learn-wrapper">
         <Link to={`/course/${id}`} className="back-link">
-          ← Powrót do szczegółów
+          ← {t("edit_course.back_to_details")}
         </Link>
         <div className="pages">
           <div
             className={`nav-btn ${currentPage === 1 ? "disabled" : ""}`}
             onClick={() => handlePageChange(currentPage - 1)}>
-            Poprzedni
+            {t("previous")}
           </div>
 
           <div className="numbers-wrapper">
@@ -61,7 +63,7 @@ function Learn() {
               currentPage === totalPages ? "disabled" : ""
             }`}
             onClick={() => handlePageChange(currentPage + 1)}>
-            Następny
+            {t("next")}
           </div>
         </div>
 
@@ -74,7 +76,7 @@ function Learn() {
         </div>
         {currentPage === totalPages && (
           <Link to={`/course/${id}/AddComment`}>
-            <button>zakończ kurs</button>
+            <button>{t("learn.finish_course")}</button>
           </Link>
         )}
       </div>

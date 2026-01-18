@@ -7,8 +7,12 @@ import type { FetchCourseInfoParams } from "../../store/Storetypes";
 import { toast } from "react-toastify";
 import CourseFilter from "./CourseFilter";
 import { COURSES_PER_PAGE } from "../../variables";
+import Spinner from "../../Spinner";
+import { useTranslation } from "react-i18next";
 
 function Courses() {
+  const { t } = useTranslation();
+
   const [params, setparams] = useState<FetchCourseInfoParams>({
     search: undefined,
     type: undefined,
@@ -18,21 +22,26 @@ function Courses() {
 
   const courses = useCoursesInfoStore((state) => state.coursesCard);
   const [page, setPage] = useState(1);
+
   const fetchCourseInfoToCards = useCoursesInfoStore(
     (state) => state.getCourseInfoToCards,
   );
+
   const fetchCoursesSaved = useSavedCoursesStore(
     (state) => state.fetchsavedCourses,
   );
+
   const totalCountOfCards = useCoursesInfoStore((state) => state.totalCount);
   const savedCourses = useSavedCoursesStore((state) => state.savedCourses);
   const isLoading = useCoursesInfoStore((state) => state.isLoading);
+
   const totalPages = Math.ceil(totalCountOfCards / COURSES_PER_PAGE);
 
   const onAplyFilter = async (params: FetchCourseInfoParams) => {
     setparams(params);
 
     if (page === 1) await fetchCourseInfoToCards(1, params, true, savedCourses);
+
     setPage(1);
   };
 
@@ -43,9 +52,10 @@ function Courses() {
         await fetchCourseInfoToCards(page, params, false, savedCourses);
       } catch (error) {
         console.error(error);
-        toast.error("Błąd podczas ładowania kursów");
+        toast.error(t("courses.load_error"));
       }
     };
+
     loadCourses();
   }, [page, params]);
 
@@ -56,7 +66,7 @@ function Courses() {
     }
   };
 
-  if (isLoading && courses.length === 0) return <div>Ładowanie...</div>;
+  if (isLoading && courses.length === 0) return <Spinner />;
 
   return (
     <div className="courses-container">
@@ -80,7 +90,7 @@ function Courses() {
             className="pagination-btn"
             onClick={() => handlePageChange(page - 1)}
             disabled={page === 1}>
-            Poprzednia
+            {t("previous")}
           </button>
 
           <div className="pagination-numbers">
@@ -98,11 +108,12 @@ function Courses() {
             className="pagination-btn"
             onClick={() => handlePageChange(page + 1)}
             disabled={page === totalPages}>
-            Następna
+            {t("next")}
           </button>
         </div>
       )}
     </div>
   );
 }
+
 export default Courses;

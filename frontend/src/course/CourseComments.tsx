@@ -4,18 +4,21 @@ import "./styles/CourseComments.css";
 import { useAuth } from "../auth/AuthContext";
 import { Link } from "react-router-dom";
 import Spinner from "../Spinner";
+import { useTranslation } from "react-i18next";
 
 interface Props {
   courseUrl: string;
 }
 
 const CourseComments = ({ courseUrl }: Props) => {
+  const { t } = useTranslation();
   const {
     fetchComments,
     sortComments,
     isLoading,
     comments: storeComments,
   } = useCourseCommentsStore();
+
   const auth = useAuth();
   const [sortBy, setSortBy] = useState("date-desc");
 
@@ -34,20 +37,23 @@ const CourseComments = ({ courseUrl }: Props) => {
   if (isLoading && !currentCourseData) return <Spinner />;
 
   if (!currentCourseData || currentCourseData.comments.length === 0)
-    return <div>Brak opinii dla tego kursu.</div>;
+    return <div>{t("course.no_reviews")}</div>;
 
   return (
     <div className="comments-display-container">
       <div className="comments-header">
-        <h3>Średnia ocena: {currentCourseData.average_rating} / 10</h3>
+        <h3>
+          {t("course_details.average")} {currentCourseData.average_rating} / 10
+        </h3>
 
         <div className="sort-container">
-          <label htmlFor="comment-sort">Sortuj według: </label>
+          <label htmlFor="comment-sort">{t("course_details.sort")}</label>
+
           <select id="comment-sort" value={sortBy} onChange={handleSortChange}>
-            <option value="date-desc">Najnowsze</option>
-            <option value="date-asc">Najstarsze</option>
-            <option value="rating-desc">Ocena: od najwyższej</option>
-            <option value="rating-asc">Ocena: od najniższej</option>
+            <option value="date-desc">{t("sort.newest")}</option>
+            <option value="date-asc">{t("sort.oldest")}</option>
+            <option value="rating-desc">{t("sort.rating_high")}</option>
+            <option value="rating-asc">{t("sort.rating_low")}</option>
           </select>
         </div>
       </div>
@@ -60,14 +66,16 @@ const CourseComments = ({ courseUrl }: Props) => {
                 <Link
                   to={`/course/${courseUrl}/AddComment`}
                   className="comment-edit-link">
-                  edycja komentarza
+                  {t("course_details.edit_review")}
                 </Link>
               )}
+
               <img
                 src={c.user_avatar}
                 alt="avatar"
                 className="comment-avatar"
               />
+
               <div className="comment-user-details">
                 <strong>{c.user_name}</strong>
                 <small>{new Date(c.created_at).toLocaleDateString()}</small>
@@ -75,7 +83,9 @@ const CourseComments = ({ courseUrl }: Props) => {
             </div>
 
             <div className="comment-main-content">
-              <div className="comment-rating">Ocena: {c.review_rating}/10</div>
+              <div className="comment-rating">
+                {t("course_details.rate")} {c.review_rating}/10
+              </div>
               <p>{c.comment}</p>
             </div>
           </div>

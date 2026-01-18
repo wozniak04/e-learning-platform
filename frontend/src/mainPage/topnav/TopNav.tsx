@@ -4,16 +4,21 @@ import Settings_popup from "./Settings_popup";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../auth/AuthContext";
 import { toast } from "react-toastify";
+import { useTranslation } from "react-i18next";
+
 function TopNav() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const auth = useAuth();
+
   const [activeSetting, setActiveSetting] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
 
   const handleLogout = () => {
     auth.logout();
-    toast.success("Wylogowano pomyślnie");
+    toast.success(t("auth.logout_success"));
   };
+
   const handleSettingsClick = () => {
     setActiveSetting(!activeSetting);
   };
@@ -32,11 +37,11 @@ function TopNav() {
 
       <div className="topnav__right">
         <Link to="/main" className="topnav__link-text">
-          Home
+          {t("top_nav.home")}
         </Link>
 
         <button className="topnav__btn-create" onClick={handleCreateCourse}>
-          + Create Course
+          + {t("top_nav.create_course")}
         </button>
 
         <div className="topnav__divider"></div>
@@ -47,7 +52,7 @@ function TopNav() {
               auth.username
             ) : (
               <Link to="/login" className="login-link">
-                Login
+                {t("auth.login")}
               </Link>
             )}
           </span>
@@ -70,6 +75,7 @@ function TopNav() {
                 </svg>
               </button>
             )}
+
             {activeSetting && auth.isAuthenticated && (
               <Settings_popup wylogowanie={handleLogout} />
             )}

@@ -7,8 +7,10 @@ import axios from "axios";
 import { BACKEND_URL } from "../../variables";
 import { useCoursesInfoStore } from "../../store/Courses/CourseInfoStore";
 import { useAuth } from "../../auth/AuthContext";
+import { useTranslation } from "react-i18next";
 
 function Create_Course() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [isCreating, setIsCreating] = useState(false);
@@ -18,10 +20,13 @@ function Create_Course() {
   const [type, setType] = useState("");
   const [password, setPassword] = useState("");
   const [img, setImg] = useState<File | null>(null);
+
   const addCourseToStore = useCoursesInfoStore(
-    (state) => state.addNewCourseInfo
+    (state) => state.addNewCourseInfo,
   );
+
   const auth = useAuth();
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsCreating(true);
@@ -31,6 +36,7 @@ function Create_Course() {
       formData.append("title", title);
       formData.append("description", description);
       formData.append("quick_description", quickDescription);
+
       if (type) formData.append("type", type);
       if (password) formData.append("password", password);
       if (img) formData.append("img", img);
@@ -38,25 +44,25 @@ function Create_Course() {
       const result = await axios.post(
         `${BACKEND_URL}/courses/create`,
         formData,
-        { withCredentials: true }
+        { withCredentials: true },
       );
 
-      toast.success("Kurs został zapisany pomyślnie!");
+      toast.success(t("create_course.success"));
+
       addCourseToStore(result.data.courseId, {
         title,
         quick_description: quickDescription,
         description,
         owner_name: auth.username,
         type,
-        imgsrc: result.data.imgsrc,
+        img: result.data.imgsrc,
         material_count: 0,
         created_at: null,
       });
+
       navigate(`/course/${result.data.courseId}/edit`);
     } catch (error: any) {
-      toast.error(
-        error.response?.data?.message || "Błąd podczas tworzenia kursu"
-      );
+      toast.error(error.response?.data?.message || t("create_course.error"));
     } finally {
       setIsCreating(false);
     }
@@ -67,14 +73,14 @@ function Create_Course() {
       <TopNav />
 
       <div className="form-wrapper">
-        <h1>Stwórz nowy kurs</h1>
+        <h1>{t("create_course.title")}</h1>
 
         <form className="create-form" onSubmit={handleSubmit}>
           <div className="input-group">
-            <label>Tytuł kursu*</label>
+            <label>{t("create_course.course_title")}</label>
             <input
               type="text"
-              placeholder="..."
+              placeholder={t("create_course.course_title_placeholder")}
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               required
@@ -82,10 +88,10 @@ function Create_Course() {
           </div>
 
           <div className="input-group">
-            <label>Krótki opis (max 50 słów)*</label>
+            <label>{t("create_course.quick_description")}</label>
             <input
               type="text"
-              placeholder="Krótki tekst zachęcający do kursu..."
+              placeholder={t("create_course.quick_description_placeholder")}
               value={quickDescription}
               onChange={(e) => setQuickDescription(e.target.value)}
               required
@@ -93,9 +99,9 @@ function Create_Course() {
           </div>
 
           <div className="input-group">
-            <label>Pełny opis*</label>
+            <label>{t("create_course.full_description")}</label>
             <textarea
-              placeholder="Szczegółowy program kursu i informacje..."
+              placeholder={t("create_course.full_description_placeholder")}
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               required
@@ -107,23 +113,22 @@ function Create_Course() {
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
               gap: "20px",
-            }}
-          >
+            }}>
             <div className="input-group">
-              <label>Typ kursu</label>
+              <label>{t("create_course.course_type")}</label>
               <input
                 type="text"
-                placeholder="Np :(programowanie, matematyka...)"
+                placeholder={t("create_course.course_type_placeholder")}
                 value={type}
                 onChange={(e) => setType(e.target.value)}
               />
             </div>
 
             <div className="input-group">
-              <label>Hasło (opcjonalnie)</label>
+              <label>{t("create_course.password")}</label>
               <input
                 type="password"
-                placeholder="Ustaw, jeśli kurs prywatny"
+                placeholder={t("create_course.password_placeholder")}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
@@ -131,7 +136,8 @@ function Create_Course() {
           </div>
 
           <div className="input-group">
-            <label>Zdjęcie okładki</label>
+            <label>{t("create_course.cover_image")}</label>
+
             <div className="file-upload-wrapper">
               <input
                 type="file"
@@ -140,15 +146,18 @@ function Create_Course() {
                 id="file-input"
                 hidden
               />
-              <label
-                htmlFor="file-input"
-                style={{ cursor: "pointer", color: "var(--muted)" }}
-              >
+
+              <label htmlFor="file-input" style={{ cursor: "pointer" }}>
                 {img
-                  ? "Zmień zdjęcie"
-                  : "Kliknij, aby wybrać zdjęcie (PNG, JPG)"}
+                  ? t("create_course.change_image")
+                  : t("create_course.choose_image")}
               </label>
-              {img && <p className="file-info">✓ Wybrano: {img.name}</p>}
+
+              {img && (
+                <p className="file-info">
+                  ✓ {t("create_course.image_selected")} {img.name}
+                </p>
+              )}
             </div>
           </div>
 
@@ -156,9 +165,10 @@ function Create_Course() {
             id="save-btn"
             type="submit"
             disabled={isCreating}
-            className="submit-btn"
-          >
-            {isCreating ? "Trwa przesyłanie..." : "Zapisz kurs"}
+            className="submit-btn">
+            {isCreating
+              ? t("create_course.uploading")
+              : t("create_course.save_course")}
           </button>
         </form>
       </div>

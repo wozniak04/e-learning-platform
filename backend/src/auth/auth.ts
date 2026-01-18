@@ -59,7 +59,7 @@ const register = async (req: Request, res: Response) => {
   try {
     const result = await auth.register(email, login, password);
     if (!result.succes) {
-      return res.status(400).json({ message: result.message });
+      return res.status(500).json({ message: result.message });
     }
     return res.status(201).json({ message: "User registered successfully" });
   } catch (error) {

@@ -59,6 +59,7 @@ const register = async (
     "SELECT * FROM users WHERE email = $1;",
     [email]
   );
+  console.log("dzieje sie")
   const existingLogin = await pool.query(
     "SELECT * FROM users WHERE login = $1;",
     [login]
@@ -69,23 +70,19 @@ const register = async (
   if (existingLogin.rows.length > 0) {
     return { succes: false, message: "Login already exists" };
   }
-
   const hashed_password = await hashPassword(password);
   try {
-    const res = await pool.query("SELECT add_user($1,$2,$3)", [
+    await pool.query("SELECT add_user($1,$2,$3)", [
       login,
       hashed_password,
       email,
     ]);
-    if (res.rows.length === 0)
-      return {
-        succes: true,
-        message: "User registered successfully",
-      };
+
     return {
-      succes: false,
-      message: "Registration failed",
+      succes: true,
+      message: "User registered successfully",
     };
+
   } catch (err) {
     console.error("Register error: ", err);
     return {

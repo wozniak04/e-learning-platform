@@ -24,7 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       .get(`${BACKEND_URL}/me`, { withCredentials: true })
       .then((res) => {
         if (res.data.user) {
-          console.log("wazny token");
+          // console.log("wazny token");
           login(res.data.user);
 
           if (localStorage.getItem("lastPath"))
@@ -71,8 +71,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, username, isloading, login, logout }}
-    >
+      value={{ isAuthenticated, username, isloading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );

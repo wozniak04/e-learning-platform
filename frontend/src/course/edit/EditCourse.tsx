@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import TopNav from "../../mainPage/topnav/TopNav";
 import "../styles/create_Course.css";
 import { Link, useNavigate, useParams } from "react-router-dom";
@@ -10,6 +11,7 @@ import DeleteCourseModal from "./DeleteCourseModal";
 import { useCourseMaterialStore } from "../../store/Courses/courseMaterialStore";
 
 function EditCourse() {
+  const { t } = useTranslation();
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [materiallength, setmateriallength] = useState(0);
@@ -22,26 +24,19 @@ function EditCourse() {
   const [type, setType] = useState("");
   const [password, setPassword] = useState("");
   const [img, setImg] = useState<File | null>(null);
+
   const updateCourseInfo = useCoursesInfoStore(
-    (state) => state.updateCourseInfo
+    (state) => state.updateCourseInfo,
   );
   const isLoading = useCoursesInfoStore((state) => state.isLoading);
   const fetchCourseInfoByUrl = useCoursesInfoStore(
-    (state) => state.fetchCourseInfoByUrl
+    (state) => state.fetchCourseInfoByUrl,
   );
   const fetchCourseMaterials = useCourseMaterialStore(
-    (state) => state.fetchCourseMaterials
+    (state) => state.fetchCourseMaterials,
   );
   const deleteCourse = useCoursesInfoStore((state) => state.deleteCourse);
   const publishCourse = useCoursesInfoStore((state) => state.publishCourse);
-  const updatetitle = (val: string) => setTitle(val);
-
-  const updatequick_description = (val: string) => setQuickDescription(val);
-
-  const updatedescription = (val: string) => setDescription(val);
-  const updatetype = (val: string) => setType(val);
-  const updatepassword = (val: string) => setPassword(val);
-  const updateimg = (file: File | null) => setImg(file);
 
   const updateCourseInformation = async () => {
     setIsCreating(true);
@@ -53,9 +48,9 @@ function EditCourse() {
       if (type) formData.append("type", type);
       if (password) formData.append("password", password);
       if (img) formData.append("img", img);
-      updateCourseInfo(id!, formData as Partial<CourseInfo>);
+      await updateCourseInfo(id!, formData as Partial<CourseInfo>);
     } catch (error) {
-      toast.error("Błąd podczas edytowania kursu");
+      toast.error(t("edit_course.error"));
     } finally {
       setIsCreating(false);
     }
@@ -79,10 +74,9 @@ function EditCourse() {
           }
         }
       } catch (error) {
-        console.error("Błąd pobierania danych kursu:", error);
+        console.error("Error loading course data:", error);
       }
     };
-
     loadCourseData();
   }, [id]);
 
@@ -90,73 +84,72 @@ function EditCourse() {
     e.preventDefault();
     try {
       await updateCourseInformation();
-      toast.success("Kurs został edytowany pomyślnie!");
+      toast.success(t("edit_course.success"));
     } catch (error: any) {
       toast.error(error.message);
     }
   };
+
   const handlePublish = async () => {
     if (materiallength <= 0) {
-      toast.info("musisz dodać jakieś materiały aby opublikować kurs");
+      toast.info(t("edit_course.publish_info"));
       return;
     }
     try {
       await publishCourse(id!);
       navigate("/main");
     } catch (error) {
-      console.error(error);
       toast.error(error as string);
     }
   };
+
   const handleDeleteClick = async () => {
     try {
       await deleteCourse(id!);
-      toast.success("usunięto kurs");
+      toast.success(t("edit_course.delete_success"));
       navigate("/main");
     } catch (error) {
-      console.error(error);
-      toast.error("nie udało sie usunąć kursu");
+      toast.error(t("edit_course.delete_error"));
     }
   };
 
-  if (isLoading) {
-    return <Spinner />;
-  }
+  if (isLoading) return <Spinner />;
+
   return (
     <div className="Create_Course-container">
       <TopNav />
       <div className="form-wrapper">
-        <h1>Edytuj kurs</h1>
+        <h1>{t("edit_course.title")}</h1>
         <Link to={`/course/${id}`} className="back-link">
-          ← Powrót do szczegółów
+          ← {t("edit_course.back_to_details")}
         </Link>
         <form className="create-form" onSubmit={handleSubmit}>
           <div className="input-group">
-            <label>Tytuł kursu*</label>
+            <label>{t("create_course.course_title")}</label>
             <input
               type="text"
               placeholder="..."
               value={title}
-              onChange={(e) => updatetitle(e.target.value)}
+              onChange={(e) => setTitle(e.target.value)}
               required
             />
           </div>
           <div className="input-group">
-            <label>Krótki opis (max 50 słów)*</label>
+            <label>{t("create_course.quick_description")}</label>
             <input
               type="text"
               placeholder="..."
               value={quickDescription}
-              onChange={(e) => updatequick_description(e.target.value)}
+              onChange={(e) => setQuickDescription(e.target.value)}
               required
             />
           </div>
           <div className="input-group">
-            <label>Pełny opis*</label>
+            <label>{t("create_course.full_description")}</label>
             <textarea
               placeholder="..."
               value={description}
-              onChange={(e) => updatedescription(e.target.value)}
+              onChange={(e) => setDescription(e.target.value)}
               required
             />
           </div>
@@ -165,56 +158,57 @@ function EditCourse() {
               display: "grid",
               gridTemplateColumns: "1fr 1fr",
               gap: "20px",
-            }}
-          >
+            }}>
             <div className="input-group">
-              <label>Typ kursu</label>
+              <label>{t("create_course.course_type")}</label>
               <input
                 type="text"
                 value={type}
-                onChange={(e) => updatetype(e.target.value)}
+                onChange={(e) => setType(e.target.value)}
               />
             </div>
             <div className="input-group">
-              <label>Hasło (opcjonalnie)</label>
+              <label>{t("create_course.password")}</label>
               <input
                 type="password"
                 value={password || ""}
-                onChange={(e) => updatepassword(e.target.value)}
+                onChange={(e) => setPassword(e.target.value)}
               />
             </div>
           </div>
           <div className="input-group">
-            <label>Zdjęcie okładki</label>
+            <label>{t("create_course.cover_image")}</label>
             <div className="file-upload-wrapper">
               <input
                 type="file"
                 accept="image/*"
-                onChange={(e) => updateimg(e.target.files?.[0] || null)}
+                onChange={(e) => setImg(e.target.files?.[0] || null)}
                 id="file-input"
                 hidden
               />
               <label
                 htmlFor="file-input"
-                style={{ cursor: "pointer", color: "var(--muted)" }}
-              >
-                {img ? "Zmień zdjęcie" : "Kliknij, aby wybrać zdjęcie"}
+                style={{ cursor: "pointer", color: "var(--muted)" }}>
+                {img
+                  ? t("create_course.change_image")
+                  : t("create_course.choose_image")}
               </label>
               {img && <p className="file-info">✓ {img.name}</p>}
             </div>
           </div>
           <Link to={`/course/${id}/materials`}>
             <button type="button" className="submit-btn">
-              Dodaj materiały
+              {t("edit_course.add_materials")}
             </button>
           </Link>
           <button
             id="save-btn"
             type="submit"
             disabled={isCreating}
-            className="submit-btn"
-          >
-            {isCreating ? "Trwa przesyłanie..." : "zapisz zmiany"}
+            className="submit-btn">
+            {isCreating
+              ? t("create_course.uploading")
+              : t("edit_course.save_changes")}
           </button>
         </form>
         {!ispublished && (
@@ -222,18 +216,16 @@ function EditCourse() {
             type="button"
             className="submit-btn"
             style={{ backgroundColor: "#22c55e", marginTop: "10px" }}
-            onClick={handlePublish}
-          >
-            Opublikuj kurs
+            onClick={handlePublish}>
+            {t("edit_course.publish_btn")}
           </button>
         )}
         <div className="danger-zone">
           <button
             type="button"
             className="delete-btn-outline"
-            onClick={() => setShowDeleteConfirm(true)}
-          >
-            Usuń kurs
+            onClick={() => setShowDeleteConfirm(true)}>
+            {t("edit_course.delete_btn")}
           </button>
 
           {showDeleteConfirm && (

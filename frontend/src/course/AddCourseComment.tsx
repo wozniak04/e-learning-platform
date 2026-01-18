@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useCourseCommentsStore } from "../store/Courses/CourseCommentsStore";
 import "./styles/AddComment.css";
 import { toast } from "react-toastify";
 import TopNav from "../mainPage/topnav/TopNav";
 
 const AddComment = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
   const navigate = useNavigate();
   const addComment = useCourseCommentsStore((state) => state.addComment);
@@ -15,10 +17,10 @@ const AddComment = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!id || comment.length === 0) return;
-    console.log(comment);
+
     try {
       await addComment(id!, comment, rating);
-      toast.success("Komentarz dodany pomyślnie");
+      toast.success(t("comments.add_success"));
       navigate("/main");
     } catch (error) {
       console.error("Błąd podczas wysyłania:", error);
@@ -29,10 +31,10 @@ const AddComment = () => {
     <div className="main-layout">
       <TopNav />
       <div className="comment-container">
-        <h2>Dodaj opinię o kursie</h2>
+        <h2>{t("comments.add_title")}</h2>
         <form onSubmit={handleSubmit} className="comment-form">
           <div className="rating-section">
-            <label>Ocena: </label>
+            <label>{t("course_details.rate")}</label>
             <select
               className="rating-select"
               value={rating}
@@ -47,14 +49,14 @@ const AddComment = () => {
 
           <textarea
             className="comment-textarea"
-            placeholder="Twoja opinia..."
+            placeholder={t("comments.placeholder")}
             value={comment}
             onChange={(e) => setComment(e.target.value)}
             required
           />
 
           <button type="submit" className="submit-button">
-            Wyślij komentarz
+            {t("comments.submit_btn")}
           </button>
         </form>
       </div>

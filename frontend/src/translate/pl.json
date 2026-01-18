@@ -1,0 +1,165 @@
+{
+    "signed":"Zapisano",
+    "next":"Następna",
+    "previous":"Poprzednia",
+
+    "settings":{
+        "logout":"wyloguj",
+        "language":"język"
+    },
+    "top_nav":{
+        "home":"Główna",
+        "create_course":"Stwórz Kurs"
+    },
+    "course_card": {
+        "saved": "Zapisany",
+        "not_saved": "Niezapisany"
+    },
+    "filters":{
+        "placeholder":"Wyszukaj Kurs",
+        "search":"Szukaj",
+        "hide_filters": "▲ Ukryj filtry",
+        "show_filters": "▼ Rozwiń filtry",
+        "all": "Wszystkie",
+        "video": "Wideo",
+        "text": "Tekstowe",
+        "alphabetical": "A-Z (alfabetycznie)",
+        "type":"Typ:",
+        "sortby":"Sortuj:",
+        "saved":"Tylko Zapisane Kursy"
+    },
+    "courses": {
+        "load_error": "Błąd podczas ładowania kursów"
+    },
+    "course_details": {
+        "owner": "Prowadzący: ",
+        "materials": "Materiały: ",
+        "created": "Utworzono",
+        "signup": "Zapisz się na kurs",
+        "unsignup": "Wypisz się z kursu",
+        "go_to_course": "Przejdź do kursu",
+        "about": "O kursie",
+        "type": "Typ kursu: ",
+        "average": "Średnia ocena: ",
+        "sort": "Sortuj według: ",
+        "rate": "Oceń: ",
+        "edit_review": "Edytuj opinię"
+    },
+    "common": {
+        "loading": "Ładowanie..."
+    },
+
+    "errors": {
+        "course_fetch": "Nie udało się pobrać danych kursu"
+    },
+
+    "course": {
+        "signup_success": "Zapisano się na kurs!",
+        "already_signed": "Jesteś już zapisany na ten kurs",
+        "signup_error": "Nie udało się zapisać na kurs",
+        "unsign_success": "Wypisano się z kursu!",
+        "unsign_error": "Nie udało się wypisać z kursu",
+        "edit": "Edytuj kurs",
+        "no_reviews": "Brak opinii dla tego kursu."
+    },
+
+    "sort": {
+        "newest": "Najnowsze",
+        "oldest": "Najstarsze",
+        "rating_high": "Ocena: od najwyższej",
+        "rating_low": "Ocena: od najniższej"
+    },
+    "create_course": {
+        "title": "Utwórz nowy kurs",
+        "course_title": "Tytuł kursu*",
+        "course_title_placeholder": "...",
+        "quick_description": "Krótki opis (max 50 słów)*",
+        "quick_description_placeholder": "Krótki tekst zachęcający do udziału w kursie...",
+        "full_description": "Pełny opis*",
+        "full_description_placeholder": "Szczegółowy program kursu oraz dodatkowe informacje...",
+        "course_type": "Typ kursu",
+        "course_type_placeholder": "np. programowanie, matematyka...",
+        "password": "Hasło (opcjonalnie)",
+        "password_placeholder": "Ustaw, jeśli kurs ma być prywatny",
+        "cover_image": "Zdjęcie okładki",
+        "choose_image": "Kliknij, aby wybrać zdjęcie (PNG, JPG)",
+        "change_image": "Zmień zdjęcie",
+        "image_selected": "Wybrano:",
+        "save_course": "Zapisz kurs",
+        "uploading": "Trwa przesyłanie...",
+        "success": "Kurs został utworzony pomyślnie!",
+        "error": "Błąd podczas tworzenia kursu"
+    },
+    "delete_modal": {
+        "question": "Czy na pewno chcesz usunąć ten kurs?",
+        "confirm": "Tak",
+        "cancel": "Nie"
+    },
+    "edit_course": {
+        "title": "Edytuj kurs",
+        "back_to_details": "Powrót do szczegółów",
+        "add_materials": "Dodaj materiały",
+        "save_changes": "zapisz zmiany",
+        "publish_btn": "Opublikuj kurs",
+        "delete_btn": "Usuń kurs",
+        "publish_info": "musisz dodać jakieś materiały aby opublikować kurs",
+        "success": "Kurs został edytowany pomyślnie!",
+        "error": "Błąd podczas edytowania kursu",
+        "delete_success": "usunięto kurs",
+        "delete_error": "nie udało sie usunąć kursu"
+    },
+    "learn": {
+        "finish_course": "zakończ kurs"
+    },
+    "material_editor": {
+        "title": "Materiały Kursu",
+        "add_page_tooltip": "Dodaj stronę",
+        "editing_lesson": "Edytujesz Lekcję {{page}}",
+        "remove_lesson": "Usuń tę lekcję",
+        "lesson_title": "Tytuł lekcji",
+        "title_placeholder": "Wpisz tytuł...",
+        "content_label": "Treść (Markdown)",
+        "content_placeholder": "Napisz coś ciekawego...",
+        "save_all": "Zapisz cały program kursu ({{count}} lekcji)",
+        "max_lessons_error": "Nie można dodać więcej niż 24 lekcje do kursu.",
+        "save_success": "zaktualizowano materiały pomyślnie",
+        "save_error": "błąd podczas aktualizacji materiałów"
+    },
+    "not_found": {
+        "title": "404 - Strona nie znaleziona",
+        "message": "Ups! Wygląda na to, że zabłądziłeś.",
+        "redirect": "Zostaniesz przekierowany do strony głównej za {{seconds}} s...",
+        "back_btn": "Wróć teraz"
+    },
+    "auth": {
+        "login": "Zaloguj",
+        "logout_success": "Wylogowano pomyślnie",
+        "login_title": "Logowanie",
+        "login_placeholder": "wpisz login lub email",
+        "password_placeholder": "wpisz hasło",
+        "login_button": "Zaloguj się",
+        "forgot_password": "Zapomniałem hasła",
+        "create_account": "założ konto",
+        "login_success": "Pomyślnie zalogowano",
+        "google_success": "Pomyślnie zalogowano z Google",
+        "google_error": "Logowanie z Google nie powiodło się",
+        "invalid_credentials": "Zły login lub hasło",
+        "registration_title": "Rejestracja",
+        "username_placeholder": "Wpisz nazwę użytkownika",
+        "email_placeholder": "Wpisz email",
+        "repeat_password_placeholder": "Powtórz hasło",
+        "register_button": "Zarejestruj się",
+        "have_account": "Masz już konto? Zaloguj się",
+        "fill_all_fields": "Wypełnij wszystkie pola.",
+        "passwords_dont_match": "Hasła się nie zgadzają.",
+        "registration_success": "Rejestracja udana! Możesz się zalogować.",
+        "registration_error": "Błąd rejestracji."
+    },
+    "comments": {
+        "add_title": "Dodaj opinię o kursie",
+        "placeholder": "Twoja opinia...",
+        "submit_btn": "Wyślij komentarz",
+        "add_success": "Komentarz dodany pomyślnie"
+    }
+
+}

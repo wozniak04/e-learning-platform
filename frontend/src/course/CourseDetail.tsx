@@ -9,13 +9,18 @@ import type { CourseDetail } from "../store/Storetypes";
 import NotFoundPage from "../Not_Found";
 import { useAuth } from "../auth/AuthContext";
 import CourseComments from "./CourseComments";
+import { useTranslation } from "react-i18next";
+import Spinner from "../Spinner";
 
 function CourseDetails() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const auth = useAuth();
   const { id } = useParams<{ id: string }>();
+
   const [isSaved, setIsSaved] = useState<boolean>(false);
   const [courseDetail, setCourseDetail] = useState<CourseDetail | null>(null);
+
   const signuptoCourse = useSavedCoursesStore(
     (state) => state.addToSavedCourses,
   );
@@ -35,59 +40,57 @@ function CourseDetails() {
       fetchsavedCourses().then((res) => {
         setIsSaved(res.some((course) => course === id));
       });
+
       getCourseDetail(id!).then((data) => {
-        if (data) {
-          setCourseDetail(data);
-        }
+        if (data) setCourseDetail(data);
       });
-    } catch (err: Error | any) {
-      toast.error(err.message || "Nie udało się pobrać danych kursu");
+    } catch (err: any) {
+      toast.error(err.message || t("errors.course_fetch"));
     }
   }, [id]);
 
-  if (loading) {
-    return <div>loading</div>;
-  } else if (!courseDetail) {
-    return <NotFoundPage />;
-  }
+  if (loading) return <Spinner />;
+  if (!courseDetail) return <NotFoundPage />;
 
   const handleSignUp = () => {
     signuptoCourse(id!)
       .then(() => {
-        toast.success("zapisano sie na kurs!");
+        toast.success(t("course.signup_success"));
         setIsSaved(true);
       })
       .catch((error) => {
         if (error.message === "you are already signed up to this course") {
           setIsSaved(true);
-          toast.info("Jesteś już zapisany na ten kurs");
+          toast.info(t("course.already_signed"));
           return;
         }
         setIsSaved(false);
-        toast.error(error.message || "Nie udało się zapisać na kurs");
+        toast.error(error.message || t("course.signup_error"));
       });
   };
+
   const handleUnSign = () => {
     unsigntoCourse(id!)
       .then(() => {
         setIsSaved(false);
-        toast.success("wypisano sie z kursu!");
+        toast.success(t("course.unsign_success"));
       })
       .catch((error) => {
         setIsSaved(true);
-        toast.error(error.message || "Nie udało się wypisać z kursu");
+        toast.error(error.message || t("course.unsign_error"));
       });
   };
 
   return (
     <div id="box">
       <TopNav />
+
       <div className="course-container">
         {auth.username === courseDetail.owner_name && (
           <button
             className="edit-course-button"
             onClick={() => navigate(`/course/${id}/edit`)}>
-            Edytuj kurs
+            {t("course.edit")}
           </button>
         )}
 
@@ -105,12 +108,21 @@ function CourseDetails() {
 
           <div className="course-info">
             <h1>{courseDetail.title}</h1>
-            <p className="owner">Prowadzący: {courseDetail.owner_name}</p>
+
+            <p className="owner">
+              {t("course_details.owner")}
+              {courseDetail.owner_name}
+            </p>
+
             <div className="stats">
-              <span>Materiały: {courseDetail.material_count}</span>
+              <span>
+                {t("course_details.materials")}
+                {courseDetail.material_count}
+              </span>
+
               {courseDetail.created_at && (
                 <span>
-                  Stworzono:{" "}
+                  {t("course_details.created")}{" "}
                   {courseDetail.created_at
                     .toLocaleString("pl-PL", {
                       day: "2-digit",
@@ -126,17 +138,18 @@ function CourseDetails() {
 
             {!isSaved ? (
               <button className="enroll-btn" onClick={handleSignUp}>
-                Zapisz się na kurs
+                {t("course_details.signup")}
               </button>
             ) : (
               <div style={{ display: "flex", gap: "10px" }}>
                 <button className="enroll-btn" onClick={handleUnSign}>
-                  wypisz sie z kursu
+                  {t("course_details.unsignup")}
                 </button>
+
                 <button
                   className="enroll-btn"
                   onClick={() => navigate(`/course/${id}/learn`)}>
-                  przejdź do kursu
+                  {t("course_details.go_to_course")}
                 </button>
               </div>
             )}
@@ -144,10 +157,14 @@ function CourseDetails() {
         </header>
 
         <section className="course-description">
-          <h2>O kursie</h2>
+          <h2>{t("course_details.about")}</h2>
           <p>{courseDetail.description}</p>
+
           {courseDetail.type && (
-            <p style={{ marginTop: "10px" }}>Typ kursu: {courseDetail.type}</p>
+            <p style={{ marginTop: "10px" }}>
+              {t("course_details.type")}
+              {courseDetail.type}
+            </p>
           )}
         </section>
 
@@ -158,4 +175,5 @@ function CourseDetails() {
     </div>
   );
 }
+
 export default CourseDetails;

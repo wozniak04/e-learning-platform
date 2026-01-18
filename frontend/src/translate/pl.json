@@ -20,9 +20,6 @@
         "search":"Szukaj",
         "hide_filters": "▲ Ukryj filtry",
         "show_filters": "▼ Rozwiń filtry",
-        "all": "Wszystkie",
-        "video": "Wideo",
-        "text": "Tekstowe",
         "alphabetical": "A-Z (alfabetycznie)",
         "type":"Typ:",
         "sortby":"Sortuj:",
@@ -161,6 +158,14 @@
         "placeholder": "Twoja opinia...",
         "submit_btn": "Wyślij komentarz",
         "add_success": "Komentarz dodany pomyślnie"
-    }
+    },
+    "course_types": {
+        "math": "Matematyka",
+        "physics": "Fizyka",
+        "it": "Informatyka",
+        "languages": "Języki",
+        "other": "Inne",
+        "all": "Wszystkie"
+        }
 
 }

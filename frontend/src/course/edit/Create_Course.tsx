@@ -17,8 +17,8 @@ function Create_Course() {
   const [title, setTitle] = useState("");
   const [quickDescription, setQuickDescription] = useState("");
   const [description, setDescription] = useState("");
-  const [type, setType] = useState("");
-  const [password, setPassword] = useState("");
+  const [type, setType] = useState("inne");
+  const password = "";
   const [img, setImg] = useState<File | null>(null);
 
   const addCourseToStore = useCoursesInfoStore(
@@ -116,22 +116,23 @@ function Create_Course() {
             }}>
             <div className="input-group">
               <label>{t("create_course.course_type")}</label>
-              <input
-                type="text"
-                placeholder={t("create_course.course_type_placeholder")}
+              <select
+                className="course-type-select"
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-              />
-            </div>
-
-            <div className="input-group">
-              <label>{t("create_course.password")}</label>
-              <input
-                type="password"
-                placeholder={t("create_course.password_placeholder")}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-              />
+                required
+                style={{
+                  padding: "10px",
+                  borderRadius: "8px",
+                  border: "1px solid var(--border)",
+                  fontSize: "1rem",
+                }}>
+                <option value="matematyka">{t("course_types.math")}</option>
+                <option value="fizyka">{t("course_types.physics")}</option>
+                <option value="informatyka">{t("course_types.it")}</option>
+                <option value="języki">{t("course_types.languages")}</option>
+                <option value="inne">{t("course_types.other")}</option>
+              </select>
             </div>
           </div>
 

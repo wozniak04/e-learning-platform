@@ -18,9 +18,6 @@
         "placeholder": "Search course...",
         "hide_filters": "▲ Hide filters",
         "show_filters": "▼ Show filters",
-        "all": "All",
-        "video": "Video",
-        "text": "Text",
         "alphabetical": "A–Z (alphabetical)",
         "search":"Search",
         "type":"Type:",
@@ -168,5 +165,13 @@
         "placeholder": "Your review...",
         "submit_btn": "Submit comment",
         "add_success": "Comment added successfully"
+    },
+    "course_types": {
+        "math": "Mathematics",
+        "physics": "Physics",
+        "it": "IT / Computer Science",
+        "languages": "Languages",
+        "other": "Other",
+        "all": "All"
     }
 }

@@ -55,9 +55,12 @@ function CourseFilter({ onApply }: CourseFilterProps) {
             <select
               value={courseType}
               onChange={(e) => setCourseType(e.target.value)}>
-              <option value="all">{t("filters.all")}</option>
-              <option value="video">{t("filters.video")}</option>
-              <option value="tekst">{t("filters.text")}</option>
+              <option value="all">{t("course_types.all")}</option>
+              <option value="matematyka">{t("course_types.math")}</option>
+              <option value="fizyka">{t("course_types.physics")}</option>
+              <option value="informatyka">{t("course_types.it")}</option>
+              <option value="języki">{t("course_types.languages")}</option>
+              <option value="inne">{t("course_types.other")}</option>
             </select>
           </div>
 

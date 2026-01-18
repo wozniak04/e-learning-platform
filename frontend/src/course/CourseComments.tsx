@@ -71,7 +71,11 @@ const CourseComments = ({ courseUrl }: Props) => {
               )}
 
               <img
-                src={c.user_avatar}
+                src={
+                  c.user_avatar
+                    ? c.user_avatar
+                    : "https://static.thenounproject.com/png/3874124-200.png"
+                }
                 alt="avatar"
                 className="comment-avatar"
               />

@@ -6,7 +6,6 @@ import { useSavedCoursesStore } from "../../store/Courses/savedCoursesStore";
 import type { FetchCourseInfoParams } from "../../store/Storetypes";
 import { toast } from "react-toastify";
 import CourseFilter from "./CourseFilter";
-import { COURSES_PER_PAGE } from "../../variables";
 import Spinner from "../../Spinner";
 import { useTranslation } from "react-i18next";
 
@@ -31,11 +30,9 @@ function Courses() {
     (state) => state.fetchsavedCourses,
   );
 
-  const totalCountOfCards = useCoursesInfoStore((state) => state.totalCount);
+  const totalPages = useCoursesInfoStore((state) => state.totalPages);
   const savedCourses = useSavedCoursesStore((state) => state.savedCourses);
   const isLoading = useCoursesInfoStore((state) => state.isLoading);
-
-  const totalPages = Math.ceil(totalCountOfCards / COURSES_PER_PAGE);
 
   const onAplyFilter = async (params: FetchCourseInfoParams) => {
     setparams(params);
@@ -83,33 +80,27 @@ function Courses() {
           />
         ))}
       </div>
-
       {totalPages > 1 && (
         <div className="pagination-container">
-          <button
-            className="pagination-btn"
-            onClick={() => handlePageChange(page - 1)}
-            disabled={page === 1}>
-            {t("previous")}
-          </button>
+          <p className="pagination-status">
+            {t("course.page")}
+            {page}/{totalPages}
+          </p>
+          <div className="buttons-for-pagination-container">
+            <button
+              className="pagination-btn"
+              onClick={() => handlePageChange(page - 1)}
+              disabled={page === 1}>
+              {t("previous")}
+            </button>
 
-          <div className="pagination-numbers">
-            {[...Array(totalPages)].map((_, index) => (
-              <div
-                key={index + 1}
-                className={`page-number ${page === index + 1 ? "active" : ""}`}
-                onClick={() => handlePageChange(index + 1)}>
-                {index + 1}
-              </div>
-            ))}
+            <button
+              className="pagination-btn"
+              onClick={() => handlePageChange(page + 1)}
+              disabled={page === totalPages}>
+              {t("next")}
+            </button>
           </div>
-
-          <button
-            className="pagination-btn"
-            onClick={() => handlePageChange(page + 1)}
-            disabled={page === totalPages}>
-            {t("next")}
-          </button>
         </div>
       )}
     </div>

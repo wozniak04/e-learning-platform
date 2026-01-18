@@ -112,10 +112,10 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       console.log(courseInfoFromApi)
       if (Object.keys(get().coursesInfo).length < MAX_COURSE_INFO_STORE) {
         if (Object.keys(get().coursesInfo).length === 0) {
-          set({ coursesInfo: { ...courseInfoFromApi }, totalCount: 1, totalPages: Math.ceil(get().totalCount / COURSES_PER_PAGE) })
+          set({ coursesInfo: { ...courseInfoFromApi }, totalCount: 1, totalPages: 1 })
         } else {
           set({
-            coursesInfo: { ...get().coursesInfo, ...courseInfoFromApi }, totalCount: get().totalCount + 1, totalPages: Math.ceil(get().totalCount / COURSES_PER_PAGE)
+            coursesInfo: { ...get().coursesInfo, ...courseInfoFromApi }, totalCount: get().totalCount + 1, totalPages: Math.ceil((get().totalCount + 1) / COURSES_PER_PAGE)
           });
         }
       } else {
@@ -157,7 +157,7 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       set({ totalCount: total_Count })
       if (Object.keys(get().coursesInfo).length < MAX_COURSE_INFO_STORE) {
         set({
-          coursesInfo: { ...get().coursesInfo, ...coursesInfo }, isLoading: false, totalCount: total_Count, totalPages: Math.ceil(get().totalCount / COURSES_PER_PAGE)
+          coursesInfo: { ...get().coursesInfo, ...coursesInfo }, isLoading: false, totalCount: total_Count, totalPages: Math.ceil(total_Count / COURSES_PER_PAGE)
         });
 
       } else {
@@ -244,6 +244,7 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       return;
     }
     let currentEntries = filterCourses(get().coursesInfo, params, savedCourses);
+    set({ totalCount: currentEntries.length, totalPages: Math.ceil((currentEntries.length) / COURSES_PER_PAGE) })
     if (currentEntries.length < COURSES_PER_PAGE && filtresChanged) {
       console.log("if")
       timer = setTimeout(async () => {
@@ -268,7 +269,7 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
       title: courseInfo.title,
       description: courseInfo.description,
       owner_name: courseInfo.owner_name,
-      imgsrc: courseInfo.img || "default-placeholder.png",
+      img: courseInfo.img,
       type: courseInfo.type || "default",
       material_count: courseInfo.material_count,
       created_at: courseInfo.created_at

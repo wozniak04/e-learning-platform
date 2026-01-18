@@ -54,6 +54,7 @@
     },
 
     "course": {
+        "page":"Strona:",
         "signup_success": "Zapisano się na kurs!",
         "already_signed": "Jesteś już zapisany na ten kurs",
         "signup_error": "Nie udało się zapisać na kurs",

@@ -80,7 +80,6 @@ function CourseDetails() {
         toast.error(error.message || t("course.unsign_error"));
       });
   };
-
   return (
     <div id="box">
       <TopNav />

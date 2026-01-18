@@ -53,6 +53,7 @@
     },
 
     "course": {
+        "page":"Page:",
         "signup_success": "Successfully enrolled in the course!",
         "already_signed": "You are already enrolled in this course",
         "signup_error": "Failed to enroll in the course",

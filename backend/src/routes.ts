@@ -5,6 +5,8 @@ import csrfProtection from "./middleware/csrfProtection";
 import { authenticateJWT } from "./middleware/authenticatejwt";
 import courses from "./courses/coursesActions";
 import { upload } from "./middleware/images";
+import mqtt from "mqtt";
+import { EventEmitter } from "events";
 
 const whoisthis = (req: Request, res: Response, next: Function) => {
   console.log(req.method, req.originalUrl, "from", req.ip);
@@ -12,6 +14,22 @@ const whoisthis = (req: Request, res: Response, next: Function) => {
 };
 const router = Router();
 
+const adEvents = new EventEmitter();
+
+
+const mqttClient = mqtt.connect("mqtt://localhost:1883");
+
+mqttClient.on("connect", () => {
+  console.log("Express połączony z brokerem MQTT");
+  mqttClient.subscribe("reklamy");
+});
+
+
+mqttClient.on("message", (topic, message) => {
+
+  adEvents.emit("new-ad", message);
+
+});
 router.get("/", (req: Request, res: Response) => {
   res.send("init");
 });
@@ -129,5 +147,37 @@ router.delete(
   authenticateJWT,
   courses.deleteCourseReview
 );
+router.get("/reklamy", (req, res) => {
+  res.setHeader("Content-Type", "text/event-stream");
+  res.setHeader("Cache-Control", "no-cache");
+  res.setHeader("Connection", "keep-alive");
+  res.setHeader("Access-Control-Allow-Origin", process.env.FRONTEND_URL as string);
+  res.setHeader("Access-Control-Allow-Credentials", "true");
 
+
+  const sendSSE = (data: string) => {
+
+    res.write(`data: ${data}\n\n`);
+  };
+
+
+  const adHandler = (data: string) => {
+    sendSSE(data);
+  };
+
+  adEvents.on("new-ad", adHandler);
+
+
+  const keepAlive = setInterval(() => {
+    res.write(": keep-alive\n\n");
+  }, 30000);
+
+
+  req.on("close", () => {
+    console.log("Klient SSE odłączony");
+    adEvents.off("new-ad", adHandler);
+    clearInterval(keepAlive);
+    res.end();
+  });
+});
 export default router;

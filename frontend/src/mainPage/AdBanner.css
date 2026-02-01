@@ -1,0 +1,77 @@
+.ad-banner-container {
+  position: relative; /* Pozwala na pozycjonowanie 'X' względem tego boxa */
+  background: linear-gradient(90deg, #fff176 0%, #ffeb3b 100%);
+  padding: 15px 40px 15px 20px; /* Większy padding z prawej, żeby nie nachodzić na X */
+  text-align: center;
+  border-bottom: 1px solid #e0d030;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  animation: slideIn 0.4s ease-out;
+  min-height: 50px;
+}
+
+.ad-text {
+  font-size: 14px;
+  color: #333;
+}
+
+.ad-link {
+  font-weight: bold;
+  color: #000;
+  text-decoration: none;
+  background: rgba(255, 255, 255, 0.4);
+  padding: 4px 12px;
+  border-radius: 20px;
+  transition: background 0.3s;
+}
+
+.ad-link:hover {
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.ad-close-btn {
+  position: absolute;
+
+  top: 5px;
+  right: 5px;
+  
+
+  width: 24px;
+  height: 24px;
+  
+
+  background: transparent;
+  border: none;
+  border-radius: 50%; 
+  
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  
+  font-size: 16px;
+  font-weight: bold;
+  color: #666;
+  cursor: pointer;
+  
+
+  align-self: flex-start;
+  
+  transition: all 0.2s ease;
+  padding: 0; 
+  line-height: 1;
+}
+
+.ad-close-btn:hover {
+  background-color: rgba(0, 0, 0, 0.1);
+  color: #000;
+  transform: scale(1.1);
+}
+
+@keyframes slideIn {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}

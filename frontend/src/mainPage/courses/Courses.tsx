@@ -91,16 +91,14 @@ function Courses() {
             <button
               className="pagination-btn"
               onClick={() => handlePageChange(page - 1)}
-              disabled={page === 1}
-            >
+              disabled={page === 1}>
               {t("previous")}
             </button>
 
             <button
               className="pagination-btn"
               onClick={() => handlePageChange(page + 1)}
-              disabled={page === totalPages}
-            >
+              disabled={page === totalPages}>
               {t("next")}
             </button>
           </div>

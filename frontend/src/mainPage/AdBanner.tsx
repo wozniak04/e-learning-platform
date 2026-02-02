@@ -41,7 +41,7 @@ const AdBanner = () => {
       </div>
 
       <Link to={adData.link} className="ad-link">
-        Sprawdź ofertę →
+        Sprawdź Kurs →
       </Link>
 
       <button

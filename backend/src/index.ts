@@ -7,6 +7,7 @@ import cors from "cors";
 import { connectRedis } from "./config/redis";
 import router from "./routes";
 import logger from "./middleware/logger";
+import { setupChatSocket } from "./chatSocket";
 
 dotenv.config();
 
@@ -65,13 +66,7 @@ app.use((req, res, next) => {
 app.use("/", router);
 
 
-io.on("connection", (socket) => {
-  console.log(`New client connected: ${socket.id}`);
-
-  socket.on("disconnect", () => {
-    console.log(`Client disconnected: ${socket.id}`);
-  });
-});
+setupChatSocket(io);
 
 
 const startServer = async () => {

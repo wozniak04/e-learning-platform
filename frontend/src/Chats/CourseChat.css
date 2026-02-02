@@ -1,0 +1,107 @@
+
+.course-chat-page {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #111827;
+  color: #f3f4f6;
+  font-family: sans-serif;
+}
+
+
+.course-chat-page .chat-page-content {
+  width: 100%;
+  max-width: 1200px; 
+  margin: 0 auto;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+
+.course-chat-page .chat-page-header {
+  margin-bottom: 20px;
+}
+
+
+.course-chat-page .chat-container {
+  display: flex;
+  flex-direction: column;
+  background: #1f2937;
+  border: 1px solid #374151;
+  border-radius: 8px;
+  width: 100%;
+  overflow: hidden;
+}
+
+
+.course-chat-page .messages-list {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  background: #1a222f;
+ 
+}
+
+
+.course-chat-page .message-item {
+  background: #374151;
+  padding: 10px 15px;
+  border-radius: 12px;
+  max-width: 80%;
+  align-self: flex-start;
+}
+
+.course-chat-page .message-item.own-message {
+  background: #3b82f6;
+  align-self: flex-end;
+}
+
+
+.course-chat-page .chat-form {
+  display: flex;
+  gap: 10px;
+  padding: 15px;
+  background: #1f2937;
+  border-top: 1px solid #374151;
+}
+
+.course-chat-page .chat-input {
+  flex: 1;
+  height: 45px !important; 
+  padding: 0 15px !important; 
+  font-size: 16px !important; 
+  background: #374151;
+  border: 1px solid #4b5563;
+  color: white;
+  border-radius: 6px;
+  outline: none;
+}
+
+.course-chat-page .chat-submit-btn {
+  width: 15%;
+  height: 45px;
+  padding: 0 25px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.course-chat-page .message-user {
+  display: block;
+  font-weight: bold;
+  font-size: 0.8rem;
+  margin-bottom: 3px;
+  color: #93c5fd;
+}
+
+.course-chat-page .message-time {
+  display: block;
+  font-size: 0.7rem;
+  opacity: 0.7;
+  margin-top: 5px;
+  text-align: right;
+}

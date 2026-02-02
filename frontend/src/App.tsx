@@ -14,6 +14,8 @@ import CourseMaterialEditor from "./course/materials/CourseMaterialEditor";
 import Learn from "./course/materials/Learn";
 import "react-toastify/dist/ReactToastify.css";
 import AddComment from "./course/AddCourseComment";
+import CourseChatPage from "./Chats/CourseChatPage";
+
 function App() {
   return (
     <>
@@ -27,6 +29,7 @@ function App() {
           <Route element={<PrivateLayout />}>
             <Route path="/course/:id" element={<CourseDetail />} />
             <Route path="/course/:id/edit" element={<EditCourse />} />
+            <Route path="/course/:id/chat" element={<CourseChatPage />} />
             <Route path="/course/create" element={<Create_Course />} />
             <Route
               path="/course/:id/materials"

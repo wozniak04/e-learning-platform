@@ -11,6 +11,7 @@ import { useAuth } from "../auth/AuthContext";
 import CourseComments from "./CourseComments";
 import { useTranslation } from "react-i18next";
 import Spinner from "../Spinner";
+import { Link } from "react-router-dom";
 
 function CourseDetails() {
   const { t } = useTranslation();
@@ -85,6 +86,7 @@ function CourseDetails() {
       <TopNav />
 
       <div className="course-container">
+        <Link to={`/course/${id}/chat`}>forum</Link>
         {auth.username === courseDetail.owner_name && (
           <button
             className="edit-course-button"

@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     axios
-      .get(`${BACKEND_URL}/me`, { withCredentials: true })
+      .get(`${BACKEND_URL}/auth/me`, { withCredentials: true })
       .then((res) => {
         if (res.data.user) {
           // console.log("wazny token");
@@ -56,11 +56,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     setusername(user);
   };
   const logout = async () => {
-    const tokencsrf = await axios.get(`${BACKEND_URL}/csrf-token`, {
+    const tokencsrf = await axios.get(`${BACKEND_URL}/auth/csrf-token`, {
       withCredentials: true,
     });
     axios
-      .delete(`${BACKEND_URL}/logout`, {
+      .delete(`${BACKEND_URL}/auth/logout`, {
         withCredentials: true,
         headers: { "x-csrf-token": tokencsrf.data.csrfToken },
       })

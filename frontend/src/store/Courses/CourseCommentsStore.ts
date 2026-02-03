@@ -2,6 +2,7 @@ import axios from "axios";
 import { BACKEND_URL } from "../../variables";
 import { create } from "zustand";
 import type { CourseCommentsStore } from "../Storetypes";
+import { getCsrfToken, getCsrfHeaders } from "../../Api/csrfHelper";
 
 export const useCourseCommentsStore = create<CourseCommentsStore>(
   (set, get) => ({
@@ -40,11 +41,13 @@ export const useCourseCommentsStore = create<CourseCommentsStore>(
       set({ isLoading: true });
 
       try {
+        const csrfToken = await getCsrfToken();
         await axios.post(
           `${BACKEND_URL}/courses/${courseUrl}/comment`,
           { comment: newComment, rating: newRating },
           {
             withCredentials: true,
+            headers: getCsrfHeaders(csrfToken),
           }
         );
         const response = await axios.get(

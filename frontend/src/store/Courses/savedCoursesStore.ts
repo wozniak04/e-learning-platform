@@ -2,6 +2,7 @@ import axios from "axios";
 import { BACKEND_URL } from "../../variables";
 import { create } from "zustand";
 import type { savedCourseState } from "../Storetypes";
+import { getCsrfToken, getCsrfHeaders } from "../../Api/csrfHelper";
 
 export const useSavedCoursesStore = create<savedCourseState>((set, get) => ({
   savedCourses: [],
@@ -14,11 +15,13 @@ export const useSavedCoursesStore = create<savedCourseState>((set, get) => ({
       throw new Error("you are already signed up to this course");
 
     try {
+      const csrfToken = await getCsrfToken();
       await axios.post(
         `${BACKEND_URL}/courses/${id}/sign`,
         {},
         {
           withCredentials: true,
+          headers: getCsrfHeaders(csrfToken),
         }
       );
       set({ savedCourses: [...get().savedCourses, id] });
@@ -29,8 +32,10 @@ export const useSavedCoursesStore = create<savedCourseState>((set, get) => ({
   },
   removeFromSavedCourse: async (id: string) => {
     try {
+      const csrfToken = await getCsrfToken();
       await axios.delete(`${BACKEND_URL}/courses/${id}/unsign`, {
         withCredentials: true,
+        headers: getCsrfHeaders(csrfToken),
       });
       set({
         savedCourses: get().savedCourses.filter((course) => course !== id),

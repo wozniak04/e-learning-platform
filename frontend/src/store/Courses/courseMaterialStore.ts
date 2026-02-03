@@ -3,6 +3,7 @@ import { BACKEND_URL } from "../../variables";
 import { create } from "zustand";
 import type { CourseMaterialState, CourseMaterial } from "../Storetypes";
 import { useCoursesInfoStore } from "./CourseInfoStore";
+import { getCsrfToken, getCsrfHeaders } from "../../Api/csrfHelper";
 
 const replaceFirstCourseMaterialWithNew = (
   CourseMaterials: { [url: string]: CourseMaterial[] },
@@ -29,6 +30,7 @@ export const useCourseMaterialStore = create<CourseMaterialState>(
       }
 
       try {
+        const csrfToken = await getCsrfToken();
         const isExisting =
           get().courseMaterials[url] && get().courseMaterials[url].length > 0;
         const endpoint = isExisting
@@ -40,6 +42,7 @@ export const useCourseMaterialStore = create<CourseMaterialState>(
           url: endpoint,
           data: { materials },
           withCredentials: true,
+          headers: getCsrfHeaders(csrfToken),
         });
 
         set({

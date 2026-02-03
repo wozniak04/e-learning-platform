@@ -8,6 +8,7 @@ import { BACKEND_URL } from "../../variables";
 import { useCoursesInfoStore } from "../../store/Courses/CourseInfoStore";
 import { useAuth } from "../../auth/AuthContext";
 import { useTranslation } from "react-i18next";
+import { getCsrfToken, getCsrfHeaders } from "../../Api/csrfHelper";
 
 function Create_Course() {
   const { t } = useTranslation();
@@ -41,10 +42,14 @@ function Create_Course() {
       if (password) formData.append("password", password);
       if (img) formData.append("img", img);
 
+      const csrfToken = await getCsrfToken();
       const result = await axios.post(
         `${BACKEND_URL}/courses/create`,
         formData,
-        { withCredentials: true },
+        {
+          withCredentials: true,
+          headers: getCsrfHeaders(csrfToken),
+        },
       );
 
       toast.success(t("create_course.success"));

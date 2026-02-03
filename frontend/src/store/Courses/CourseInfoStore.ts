@@ -2,6 +2,7 @@ import axios from "axios";
 import { BACKEND_URL, COURSES_PER_PAGE } from "../../variables";
 import { create } from "zustand";
 import type { CourseInfo, CourseInfoStore, FetchCourseInfoParams, CourseCard } from "../Storetypes";
+import { getCsrfToken, getCsrfHeaders } from "../../Api/csrfHelper";
 const MAX_COURSE_INFO_STORE = 150;
 
 
@@ -180,8 +181,10 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
     const currentCourseInfo = get().coursesInfo[courseUrl];
     set({ isLoading: true });
     try {
+      const csrfToken = await getCsrfToken();
       await axios.put(`${BACKEND_URL}/courses/${courseUrl}/edit`, updatedInfo, {
         withCredentials: true,
+        headers: getCsrfHeaders(csrfToken),
       });
       set({
         coursesInfo: {
@@ -213,8 +216,10 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
   deleteCourse: async (url) => {
     set({ isLoading: true });
     try {
+      const csrfToken = await getCsrfToken();
       await axios.delete(`${BACKEND_URL}/courses/${url}`, {
         withCredentials: true,
+        headers: getCsrfHeaders(csrfToken),
       });
       if (Object.keys(get().coursesInfo).length <= 1) {
         set({ coursesInfo: {}, isLoading: false });
@@ -286,10 +291,14 @@ export const useCoursesInfoStore = create<CourseInfoStore>((set, get) => ({
   },
   publishCourse: async (url) => {
     try {
+      const csrfToken = await getCsrfToken();
       const response = await axios.post(
         `${BACKEND_URL}/courses/${url}/publish`,
         {},
-        { withCredentials: true }
+        {
+          withCredentials: true,
+          headers: getCsrfHeaders(csrfToken),
+        }
       );
 
       set({

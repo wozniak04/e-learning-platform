@@ -1,70 +1,24 @@
 import express from "express";
 import { createServer } from "http";
-import { Server as SocketServer } from "socket.io";
-import cookieParser from "cookie-parser";
 import dotenv from "dotenv";
-import cors from "cors";
 import { connectRedis } from "./config/redis";
-import router from "./routes";
-import logger from "./middleware/logger";
+import { setupCors } from "./config/cors";
+import { setupSocket } from "./config/socket";
+import { setupMiddleware } from "./config/middleware";
+import router from "./routes/routes";
 import { setupChatSocket } from "./chatSocket";
+import "./config/types";
 
 dotenv.config();
-
-
-interface userPayload {
-  login: string;
-  email: string;
-  sub: string;
-  jti: string;
-  exp: number;
-}
-
-declare global {
-  namespace Express {
-    interface Request {
-      user: userPayload;
-      io: SocketServer;
-    }
-  }
-}
 
 const app = express();
 const httpServer = createServer(app);
 
-const io = new SocketServer(httpServer, {
-  cors: {
-    origin: [
-      process.env.FRONTEND_URL as string,
-      process.env.FRONTEND_URL_HOST as string,
-    ],
-    credentials: true,
-  },
-});
-
-
-app.use(
-  cors({
-    origin: [
-      process.env.FRONTEND_URL as string,
-      process.env.FRONTEND_URL_HOST as string,
-    ],
-    credentials: true,
-  })
-);
-
-app.use(express.json());
-app.use(cookieParser());
-app.use(logger);
-
-app.use((req, res, next) => {
-  req.io = io;
-  next();
-});
-
+setupCors(app);
+const io = setupSocket(httpServer);
+setupMiddleware(app, io);
 
 app.use("/", router);
-
 
 setupChatSocket(io);
 

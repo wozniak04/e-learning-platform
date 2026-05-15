@@ -1,0 +1,98 @@
+version: '3.8'
+
+networks:
+  frontend-net:
+    driver: bridge
+  backend-net:
+    driver: bridge
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: elearning-postgres
+    restart: always
+    env_file:
+      - ./.env
+    networks:
+      - backend-net
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./app.sql:/tmp/app.dump
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: elearning-redis
+    restart: always
+    networks:
+      - backend-net
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: elearning-mosquitto
+    restart: always
+    networks:
+      - backend-net
+    volumes:
+      - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
+
+  backend:
+    build: ./backend
+    container_name: elearning-backend
+    restart: always
+    env_file:
+      - ./backend/.env
+    networks:
+      - frontend-net
+      - backend-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mosquitto:
+        condition: service_started
+
+  backend-mqtt:
+    build: ./backend
+    container_name: elearning-backend-mqtt
+    restart: always
+    command: npx ts-node src/mqtt-server.ts
+    env_file:
+      - ./backend/.env
+    networks:
+      - backend-net
+    depends_on:
+      postgres:
+        condition: service_healthy
+      mosquitto:
+        condition: service_started
+
+  frontend:
+    build: ./frontend
+    container_name: elearning-frontend
+    restart: always
+    ports:
+      - "3000:80"
+    env_file:
+      - ./frontend/.env
+    networks:
+      - frontend-net
+    depends_on:
+      - backend
+
+volumes:
+  pg_data:
+  redis_data:

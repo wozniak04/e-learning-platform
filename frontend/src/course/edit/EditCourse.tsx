@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import TopNav from "../../mainPage/topnav/TopNav";
-import "../styles/create_Course.css";
+import "../styles/create_course.css";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { useCoursesInfoStore } from "../../store/Courses/CourseInfoStore";

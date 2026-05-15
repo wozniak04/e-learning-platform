@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import TopNav from "../../mainPage/topnav/TopNav";
-import "../styles/create_Course.css";
+import "../styles/create_course.css";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import axios from "axios";

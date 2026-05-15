@@ -1,7 +1,7 @@
 import { v2 as cloudinary } from "cloudinary";
 import { CloudinaryStorage } from "multer-storage-cloudinary";
 import multer from "multer";
-import { nanoid } from "nanoid";
+import crypto from "crypto";
 
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -16,7 +16,7 @@ const storage = new CloudinaryStorage({
       folder: "platforma_kursow",
       allowed_formats: ["jpg", "png", "jpeg", "webp"],
 
-      public_id: `course_${Date.now() + nanoid(5)}`,
+      public_id: `course_${Date.now() + crypto.randomBytes(5).toString("base64url")}`,
     };
   },
 });

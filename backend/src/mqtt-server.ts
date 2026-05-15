@@ -2,7 +2,7 @@ import mqtt from "mqtt";
 import { Pool } from "pg";
 import dotenv from "dotenv";
 dotenv.config();
-const MQTT_BROKER = "mqtt://localhost:1883";
+const MQTT_BROKER = "mqtt://mosquitto:1883";
 const INTERVAL = 10000;
 
 const pool = new Pool({

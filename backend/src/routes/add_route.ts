@@ -4,7 +4,7 @@ import mqtt from "mqtt";
 
 const adEvents = new EventEmitter();
 
-const mqttClient = mqtt.connect("mqtt://localhost:1883");
+const mqttClient = mqtt.connect(process.env.MQTT_BROKER || "mqtt://localhost:1883");
 
 mqttClient.on("connect", () => {
     console.log("Express połączony z brokerem MQTT");

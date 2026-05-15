@@ -1,5 +1,5 @@
 import pool from "../../config/connectdb";
-import { nanoid } from "nanoid";
+import crypto from "crypto";
 
 const createNewCourse = async (
     userId: string,
@@ -11,7 +11,8 @@ const createNewCourse = async (
     password: string | null = null,
     countFunction: number = 0
 ) => {
-    const courseUrl = nanoid(10);
+
+    const courseUrl = crypto.randomBytes(8).toString("base64url").substring(0, 10);
     const query = `SELECT create_new_course($1,$2,$3,$4,$5,$6,$7,$8);`;
     try {
         const result = await pool.query(query, [

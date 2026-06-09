@@ -12,7 +12,9 @@ const router = Router();
 router.get("/", (req: Request, res: Response) => {
   res.send("init");
 });
-
+router.get("/health", (req: Request, res: Response) => {
+  res.send("Health check passed");
+});
 router.use("/auth", authRoutes);
 router.use("/courses", coursesRoutes);
 router.use("/reklamy", adsRoutes);

@@ -11,10 +11,20 @@ services:
     image: postgres:17-alpine
     container_name: elearning-postgres
     restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     env_file:
       - ./.env
     networks:
       - backend-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./app.sql:/tmp/app.dump
@@ -29,8 +39,18 @@ services:
     image: redis:7-alpine
     container_name: elearning-redis
     restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - backend-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512m
     volumes:
       - redis_data:/data
     healthcheck:
@@ -43,20 +63,48 @@ services:
     image: eclipse-mosquitto:2
     container_name: elearning-mosquitto
     restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     networks:
       - backend-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
     volumes:
       - ./mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf
 
   backend:
     build: ./backend
+    image: elearning-backend:1.0.0
     container_name: elearning-backend
     restart: always
+    stop_grace_period: 30s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.8'
+          memory: 512M
     env_file:
       - ./backend/.env
     networks:
       - frontend-net
       - backend-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:5000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     depends_on:
       postgres:
         condition: service_healthy
@@ -67,13 +115,25 @@ services:
 
   backend-mqtt:
     build: ./backend
+    image: elearning-backend:1.0.0
     container_name: elearning-backend-mqtt
     restart: always
-    command: npx ts-node src/mqtt-server.ts
+    stop_grace_period: 20s
+    command: node dist/mqtt-server.js
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
     env_file:
       - ./backend/.env
     networks:
       - backend-net
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
     depends_on:
       postgres:
         condition: service_healthy
@@ -81,17 +141,39 @@ services:
         condition: service_started
 
   frontend:
-    build: ./frontend
+    build:
+      context: ./frontend
+      args:
+        - VITE_GOOGLE_CLIENT_ID=${VITE_GOOGLE_CLIENT_ID}
+        - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+    image: elearning-frontend:1.0.0
     container_name: elearning-frontend
     restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256M
     ports:
       - "3000:80"
     env_file:
       - ./frontend/.env
     networks:
       - frontend-net
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:80 || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
 
 volumes:
   pg_data:

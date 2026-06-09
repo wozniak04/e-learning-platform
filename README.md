@@ -22,7 +22,7 @@ Fullstackowa platforma edukacyjna stworzona z myślą o udostępnianiu i przegl�
   * **Cloudinary** (chmurowy hosting i optymalizacja okładek kursów)
   * **Google Cloud Console** (obsługa logowania Google Auth)
 
-## ⚙️ Jak uruchomić projekt lokalnie?
+## ⚙️ Jak uruchomić aplikacje lokalnie?
 
 Aplikacja jest w 100% skonteneryzowana. Aby ją uruchomić, potrzebujesz jedynie zainstalowanego środowiska Docker.
 
@@ -32,12 +32,9 @@ Aplikacja jest w 100% skonteneryzowana. Aby ją uruchomić, potrzebujesz jedynie
    * W plikach podaj niezbędne hasła do bazy PostgreSQL, klucze JWT czy porty.
 3. Zbuduj i uruchom całe środowisko jedną komendą:
    ```bash
-   docker-compose up --build -d
+   docker-compose up -d
    ```
 4. Gotowe! Aplikacja jest dostępna pod adresem: `http://localhost:3000`
 
-*Uwaga: Przy pierwszym uruchomieniu, kontener bazy danych automatycznie odtworzy potrzebne tabele i wgra dane startowe z przygotowanego zrzutu (.dump).*
+*Uwaga: Przy pierwszym uruchomieniu, kontener bazy danych automatycznie odtworzy potrzebne tabele i wgra dane startowe z przygotowanego zrzutu podstawowym jest app.sql.*
 
----
-
-*Projekt stworzony w celach edukacyjnych i do portfolio.*

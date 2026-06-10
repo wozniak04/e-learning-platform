@@ -24,7 +24,7 @@ services:
       resources:
         limits:
           cpus: '0.5'
-          memory: 256M
+          memory: 512M
     volumes:
       - pg_data:/var/lib/postgresql/data
       - ./app.sql:/tmp/app.dump
@@ -165,12 +165,6 @@ services:
       - ./frontend/.env
     networks:
       - frontend-net
-    healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://localhost:80 || exit 1"]
-      interval: 10s
-      timeout: 5s
-      retries: 3
-      start_period: 30s
     depends_on:
       backend:
         condition: service_healthy
